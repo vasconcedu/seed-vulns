@@ -25,9 +25,10 @@ def main():
     log.info("Instantiating operators...")
     operatorsQueue = instantiateOperators(log, operators)
 
+    manifestXml = None
     if (needManifest(operatorsQueue)):
         log.info("Found queued manifest-based operator. Parsing manifest...")
-        # TODO continue here
+        # TODO continue here, need real repo from this point on to test
 
 def needManifest(operatorsQueue):
     for operator in operatorsQueue:
