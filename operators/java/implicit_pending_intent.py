@@ -1,8 +1,8 @@
-from operators.operators import Operator, OperatorTypes
+from operators.operators import Operator, OperatorNames, OperatorTypes
 
 class ImplicitPendingIntent(Operator):
 
-    name = "ImplicitPendingIntent"
+    name = OperatorNames.IMPLICIT_PENDING_INTENT
     type = OperatorTypes.JAVA
 
     def mutate(log, self):

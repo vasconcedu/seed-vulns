@@ -1,8 +1,8 @@
-from operators.operators import Operator, OperatorTypes
+from operators.operators import Operator, OperatorNames, OperatorTypes
 
 class DebuggableApplication(Operator):
 
-    name = "DebuggableApplication"
+    name = OperatorNames.DEBUGGABLE_APPLICATION
     type = OperatorTypes.XML
 
     def mutate(log, self):

@@ -1,8 +1,8 @@
-from operators.operators import Operator, OperatorTypes
+from operators.operators import Operator, OperatorNames, OperatorTypes
 
 class ImproperExport(Operator):
 
-    name = "ImproperExport"
+    name = OperatorNames.IMPROPER_EXPORT
     type = OperatorTypes.XML
 
     def mutate(log, self):

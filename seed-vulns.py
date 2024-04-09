@@ -4,7 +4,7 @@ import logging
 import argparse
 from shutil import copytree
 from operators.java.implicit_pending_intent import ImplicitPendingIntent
-from operators.operators import OperatorTypes
+from operators.operators import OperatorNames, OperatorTypes
 from operators.xml.improper_export import ImproperExport
 from operators.xml.debuggable_application import DebuggableApplication
 
@@ -39,11 +39,11 @@ def instantiateOperators(log, operators):
     for operator in operators:
         log.info("Instantiating operator: %s", operator)
         match operator:
-            case "ImproperExport":
+            case OperatorNames.IMPROPER_EXPORT.value:
                 queue.append(ImproperExport())
-            case "DebuggableApplication":
+            case OperatorNames.DEBUGGABLE_APPLICATION.value:
                 queue.append(DebuggableApplication())
-            case "ImplicitPendingIntent":
+            case OperatorNames.IMPLICIT_PENDING_INTENT.value:
                 queue.append(ImplicitPendingIntent())
             case _:
                 log.error("Invalid operator: %s", operator)
