@@ -21,7 +21,6 @@ class ManifestHandler:
         try:
             self.manifestXml = ET.parse(self.manifestPath)
             self.namespace = self.manifestXml.getroot().nsmap
-            print(list(self.namespace.values())[0])
             return True
         except ET.ParseError as e:
             return False
