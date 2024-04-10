@@ -14,5 +14,4 @@ class ImproperExport(Operator):
         except Exception as e:
             self.log.error("An error occurred while finding all application components: %s. Exiting...", e)
             exit(1)
-        self.log.info(applicationComponents)
         return {}
