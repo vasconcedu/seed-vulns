@@ -5,5 +5,5 @@ class DebuggableApplication(Operator):
     name = OperatorNames.DEBUGGABLE_APPLICATION
     type = OperatorTypes.XML
 
-    def mutate(log, self):
-        return super().mutate(self)
+    def mutate(self, destinationPath, manifestHandler):
+        return {}

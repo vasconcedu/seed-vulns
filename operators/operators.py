@@ -19,6 +19,9 @@ class Operator:
     def type(self):
         pass
 
+    def __init__(self, log):
+        self.log = log
+
     @abstractmethod
-    def mutate(log, self):
+    def mutate(self, destinationPath, manifestHandler=None):
         pass

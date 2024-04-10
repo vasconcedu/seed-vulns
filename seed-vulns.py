@@ -3,15 +3,19 @@
 import logging
 import argparse
 from shutil import copytree
+from manifest.manifest_handler import ManifestHandler
 from operators.java.implicit_pending_intent import ImplicitPendingIntent
 from operators.operators import OperatorNames, OperatorTypes
 from operators.xml.improper_export import ImproperExport
 from operators.xml.debuggable_application import DebuggableApplication
 
 def main():
+    # Setup logging and print banner to console 
     log = setupLogging()
     log.info("========== seed-vulns ==========")
 
+    # Parse arguments and log them. Need sourcePath, 
+    # destinationPath, and operators
     log.info("Parsing arguments...")
     args = parseArguments()
     sourcePath = args.sourcePath
@@ -19,16 +23,50 @@ def main():
     operators = args.operators.split(',')
     logArguments(log, sourcePath, destinationPath, operators)
 
+    # Copy the source path to the destination path. Mutations
+    # ovewrite the files in the destination path
     log.info("Copying the source path to the destination path...")
     copyDestination(log, sourcePath, destinationPath)
 
+    # Instantiate operators, by mapping the operator names to
+    # the corresponding classes 
     log.info("Instantiating operators...")
     operatorsQueue = instantiateOperators(log, operators)
 
-    manifestXml = None
-    if (needManifest(operatorsQueue)):
+    # Find and parse Android manifest if needed. That is, if
+    # there are any XML-based operators in the queue
+    if needManifest(operatorsQueue):
         log.info("Found queued manifest-based operator. Parsing manifest...")
-        # TODO continue here, need real repo from this point on to test
+        manifestHandler = ManifestHandler(destinationPath)
+
+        if manifestHandler.findManifest():
+            log.info("Manifest found at: %s. Parsing...", manifestHandler.manifestPath)
+
+            if manifestHandler.parseManifest():
+                log.info("Manifest parsed successfully")
+            else:
+                log.error("An error occurred while parsing the manifest. Exiting...")
+                exit(1)
+        else:
+            log.error("Manifest not found, but manifest-based operators specified. Exiting...")
+            exit(1)
+    
+    # Enter mutation loop. For each operator in the queue,
+    # apply the mutation to the app and save the mutated app
+    # to the destination path
+    log.info("Entering mutation loop...")
+    for operator in operatorsQueue:
+        log.info("Applying operator: %s", operator.name.value)
+
+        # Variable results is a dictionary of the mutated files where 
+        # the key is the file path and the value is the mutated 
+        # file content
+        results = None
+        if operator.type == OperatorTypes.XML:
+            results = operator.mutate(destinationPath, manifestHandler)
+        else:
+            results = operator.mutate(destinationPath)
+        log.info(results)
 
 def needManifest(operatorsQueue):
     for operator in operatorsQueue:
@@ -39,17 +77,20 @@ def instantiateOperators(log, operators):
     queue = []
     for operator in operators:
         log.info("Instantiating operator: %s", operator)
+
         match operator:
             case OperatorNames.IMPROPER_EXPORT.value:
-                queue.append(ImproperExport())
+                queue.append(ImproperExport(log))
             case OperatorNames.DEBUGGABLE_APPLICATION.value:
-                queue.append(DebuggableApplication())
+                queue.append(DebuggableApplication(log))
             case OperatorNames.IMPLICIT_PENDING_INTENT.value:
-                queue.append(ImplicitPendingIntent())
+                queue.append(ImplicitPendingIntent(log))
             case _:
                 log.error("Invalid operator: %s", operator)
                 exit(1)
+
         log.info("Instance of %s has been queued", operator)
+
     return queue
 
 def copyDestination(log, sourcePath, destinationPath):

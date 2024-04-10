@@ -5,5 +5,5 @@ class ImproperExport(Operator):
     name = OperatorNames.IMPROPER_EXPORT
     type = OperatorTypes.XML
 
-    def mutate(log, self):
-        return super().mutate(self)
+    def mutate(self, destinationPath, manifestHandler):
+        return {}
