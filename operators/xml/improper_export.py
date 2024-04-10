@@ -10,16 +10,13 @@ class ImproperExport(Operator):
     def __init__(self, log):
         super().__init__(log)
 
-    def logNonExportedComponents(self, components):
-        for component in components:
-            self.log.info("Component: %s is not exported. Reason: %s", component["name"], component["reason"])
-
     def mutate(self, destinationPath, manifestHandler):
-        result = "========== Improper Export Operator ==========\n"
+        result = "\n========== Improper Export Operator ==========\n"
         nonExportedComponents = None
         try:
             nonExportedComponents = manifestHandler.findAllApplicationComponents(exported=False)
-            self.logNonExportedComponents(nonExportedComponents)
+            for component in nonExportedComponents:
+                self.log.info("Component: %s is not exported. Reason: %s", component["name"], component["reason"])
         except Exception as e:
             self.log.error("An error occurred while finding all application components: %s. Exiting...", e)
             exit(1)
@@ -54,6 +51,10 @@ class ImproperExport(Operator):
         manifestHandler.replaceComponentAttrib(component["component"], component["name"])
         self.log.info("Successfully replaced component in manifest. New manifest is:")
         self.log.info(manifestHandler.getManifestString())
+
+        self.log.info("Writing manifest to file...")
+        manifestHandler.writeManifest()
+        self.log.info("Successfully wrote manifest to file")
 
         result += "========== End of Improper Export Operator ==========\n"
         return result 

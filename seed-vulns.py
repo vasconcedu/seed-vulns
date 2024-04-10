@@ -58,7 +58,7 @@ def main():
 
     # Variable report is a string containing the results of
     # all mutations. It is printed to the console at the end
-    report = "\n========== Mutation Report ==========\n\n"
+    report = "\n========== Mutation Report ==========\n"
     for operator in operatorsQueue:
         log.info("Applying operator: %s", operator.name.value)
         if operator.type == OperatorTypes.XML:

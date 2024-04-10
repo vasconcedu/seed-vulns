@@ -17,6 +17,10 @@ class ManifestHandler:
     def __init__(self, destinationPath):
         self.destinationPath = destinationPath
 
+    def writeManifest(self):
+        with open(self.manifestPath, "w") as f:
+            f.write(self.getManifestString())
+
     def findManifest(self):
         for root, _, files in os.walk(self.destinationPath):
             if "AndroidManifest.xml" in files:
@@ -34,12 +38,19 @@ class ManifestHandler:
         
     def getManifestString(self):
         return ET.tostring(self.manifestXml, pretty_print=True).decode("utf-8")
-        
+    
+    def queryAndReplaceAttrib(self, query, new):
+        old = self.manifestXml.find(query, namespaces=self.namespace)
+        for attrib in new.attrib:
+            old.attrib[attrib] = new.attrib[attrib]
+
+    def replaceApplicationAttrib(self, newApplication):
+        query = ".//application"
+        self.queryAndReplaceAttrib(query, newApplication)
+
     def replaceComponentAttrib(self, newComponent, componentName):
         query = ".//" + newComponent.tag + "[@android:name='" + componentName + "']"
-        oldComponent = self.manifestXml.find(query, namespaces=self.namespace)
-        for attrib in newComponent.attrib:
-            oldComponent.attrib[attrib] = newComponent.attrib[attrib]
+        self.queryAndReplaceAttrib(query, newComponent)
         
     def findComponentsWithoutExported(self, type):
         query = ".//" + type
@@ -138,3 +149,7 @@ class ManifestHandler:
             return self.findAllActivities(False) + self.findAllServices(False) + self.findAllReceivers(False) + self.findAllProviders(False)
         else:
             raise ValueError("Invalid value for exported: " + str(exported))
+        
+    def findApplication(self):
+        query = ".//application"
+        return self.manifestXml.findall(query, namespaces=self.namespace)
