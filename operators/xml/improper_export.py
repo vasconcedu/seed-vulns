@@ -15,6 +15,7 @@ class ImproperExport(Operator):
             self.log.info("Component: %s is not exported. Reason: %s", component["name"], component["reason"])
 
     def mutate(self, destinationPath, manifestHandler):
+        result = "========== Improper Export Operator ==========\n"
         nonExportedComponents = None
         try:
             nonExportedComponents = manifestHandler.findAllApplicationComponents(exported=False)
@@ -26,9 +27,11 @@ class ImproperExport(Operator):
         self.log.info("Pseudorandomly picking component to mutate...")
         index = randrange(0, len(nonExportedComponents))
         component = nonExportedComponents[index]
-        self.log.info("Picked component: %s", component["name"])
-        self.log.info("- tag: %s", component["component"].tag)
-        self.log.info("- attrib: %s", component["component"].attrib)
+        resultLine = "Picked component: " + component["name"]
+        resultLine += "\n- tag: " + component["component"].tag
+        resultLine += "\n- attrib: " + str(component["component"].attrib)
+        self.log.info(resultLine)
+        result += resultLine + "\n"
 
         self.log.info("Mutating component...")
         match component["reason"]:
@@ -40,11 +43,17 @@ class ImproperExport(Operator):
                 self.log.error("Invalid reason for non-exportation: %s", component["reason"])
                 exit(1)
         
-        self.log.info("Successfully mutated component: %s", component["name"])
-        self.log.info("- tag: %s", component["component"].tag)
-        self.log.info("- attrib: %s", component["component"].attrib)
+        self.log.info("Successfully mutated component")
+        resultLine = "Mutated component: " + component["name"]
+        resultLine += "\n- tag: " + component["component"].tag
+        resultLine += "\n- attrib: " + str(component["component"].attrib)
+        self.log.info(resultLine)
+        result += resultLine + "\n"
         
         self.log.info("Replacing component in manifest...")
         manifestHandler.replaceComponentAttrib(component["component"], component["name"])
         self.log.info("Successfully replaced component in manifest. New manifest is:")
         self.log.info(manifestHandler.getManifestString())
+
+        result += "========== End of Improper Export Operator ==========\n"
+        return result 

@@ -9,4 +9,4 @@ class ImplicitPendingIntent(Operator):
         super().__init__(log)
 
     def mutate(self, destinationPath):
-        return {}
+        return ""

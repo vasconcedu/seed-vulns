@@ -9,4 +9,4 @@ class DebuggableApplication(Operator):
         super().__init__(log)
 
     def mutate(self, destinationPath, manifestHandler):
-        return {}
+        return ""

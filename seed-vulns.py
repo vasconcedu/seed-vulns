@@ -55,18 +55,18 @@ def main():
     # apply the mutation to the app and save the mutated app
     # to the destination path
     log.info("Entering mutation loop...")
+
+    # Variable report is a string containing the results of
+    # all mutations. It is printed to the console at the end
+    report = "\n========== Mutation Report ==========\n\n"
     for operator in operatorsQueue:
         log.info("Applying operator: %s", operator.name.value)
-
-        # Variable results is a dictionary of the mutated files where 
-        # the key is the file path and the value is the mutated 
-        # file content
-        results = None
         if operator.type == OperatorTypes.XML:
-            results = operator.mutate(destinationPath, manifestHandler)
+            report += operator.mutate(destinationPath, manifestHandler)
         else:
-            results = operator.mutate(destinationPath)
-        log.info(results)
+            report += operator.mutate(destinationPath)
+    
+    log.info(report)
 
 def needManifest(operatorsQueue):
     for operator in operatorsQueue:
