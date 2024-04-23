@@ -4,6 +4,7 @@ import logging
 import argparse
 from shutil import copytree
 from manifest.manifest_handler import ManifestHandler
+from operators.java.hardcoded_secret import HardcodedSecret
 from operators.java.implicit_pending_intent import ImplicitPendingIntent
 from operators.operators import OperatorNames, OperatorTypes
 from operators.xml.improper_export import ImproperExport
@@ -70,9 +71,9 @@ def main():
     for operator in operatorsQueue:
         log.info("Applying operator: %s", operator.name.value)
         if operator.type == OperatorTypes.XML:
-            report += operator.mutate(destinationPath, manifestHandler)
+            report += operator.mutate(manifestHandler)
         else:
-            report += operator.mutate(destinationPath, sourceHandler)
+            report += operator.mutate(sourceHandler)
     
     log.info(report)
 
@@ -98,6 +99,8 @@ def instantiateOperators(log, operators):
                 queue.append(DebuggableApplication(log))
             case OperatorNames.IMPLICIT_PENDING_INTENT.value:
                 queue.append(ImplicitPendingIntent(log))
+            case OperatorNames.HARDCODED_SECRET.value:
+                queue.append(HardcodedSecret(log))
             case _:
                 log.error("Invalid operator: %s", operator)
                 exit(1)

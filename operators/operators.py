@@ -9,6 +9,7 @@ class OperatorNames(Enum):
     IMPROPER_EXPORT = "ImproperExport"
     DEBUGGABLE_APPLICATION = "DebuggableApplication"
     IMPLICIT_PENDING_INTENT = "ImplicitPendingIntent"
+    HARDCODED_SECRET = "HardcodedSecret"
 
 class Operator:
     @property
@@ -23,5 +24,5 @@ class Operator:
         self.log = log
 
     @abstractmethod
-    def mutate(self, destinationPath, handler=None):
+    def mutate(self, handler=None):
         pass

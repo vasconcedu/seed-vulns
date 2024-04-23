@@ -10,7 +10,7 @@ class ImproperExport(Operator):
     def __init__(self, log):
         super().__init__(log)
 
-    def mutate(self, destinationPath, manifestHandler):
+    def mutate(self, manifestHandler):
         result = "\n========== Improper Export Operator ==========\n"
         nonExportedComponents = None
         try:

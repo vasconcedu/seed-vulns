@@ -17,6 +17,12 @@ class SourceHandler:
     def __init__(self, destinationPath):
         self.destinationPath = destinationPath
 
+    def isJavaSourceFile(self, file):
+        return file.endswith(self.sourceFileExtensions[SourceFileExtension.JAVA])
+    
+    def isKotlinSourceFile(self, file):
+        return file.endswith(self.sourceFileExtensions[SourceFileExtension.KOTLIN])
+
     def writeSourceFile(self, file, content):
         with open(file, "w") as f:
             f.write(content)
