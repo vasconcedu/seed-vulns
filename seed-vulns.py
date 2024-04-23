@@ -8,6 +8,7 @@ from operators.java.implicit_pending_intent import ImplicitPendingIntent
 from operators.operators import OperatorNames, OperatorTypes
 from operators.xml.improper_export import ImproperExport
 from operators.xml.debuggable_application import DebuggableApplication
+from source.source_handler import SourceHandler
 
 def main():
     # Setup logging and print banner to console 
@@ -50,6 +51,13 @@ def main():
         else:
             log.error("Manifest not found, but manifest-based operators specified. Exiting...")
             exit(1)
+
+    # Find source files if needed. That is, if there are any
+    # Java-based operators in the queue
+    if needSources(operatorsQueue):
+        log.info("Found queued source-based operator. Finding source files...")
+        sourceHandler = SourceHandler(destinationPath)
+        sourceHandler.findSourceFiles()
     
     # Enter mutation loop. For each operator in the queue,
     # apply the mutation to the app and save the mutated app
@@ -64,9 +72,14 @@ def main():
         if operator.type == OperatorTypes.XML:
             report += operator.mutate(destinationPath, manifestHandler)
         else:
-            report += operator.mutate(destinationPath)
+            report += operator.mutate(destinationPath, sourceHandler)
     
     log.info(report)
+
+def needSources(operatorsQueue):
+    for operator in operatorsQueue:
+        if operator.type == OperatorTypes.JAVA:
+            return True
 
 def needManifest(operatorsQueue):
     for operator in operatorsQueue:

@@ -23,5 +23,5 @@ class Operator:
         self.log = log
 
     @abstractmethod
-    def mutate(self, destinationPath, manifestHandler=None):
+    def mutate(self, destinationPath, handler=None):
         pass
