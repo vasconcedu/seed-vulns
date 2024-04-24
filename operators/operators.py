@@ -10,6 +10,7 @@ class OperatorNames(Enum):
     DEBUGGABLE_APPLICATION = "DebuggableApplication"
     IMPLICIT_PENDING_INTENT = "ImplicitPendingIntent"
     HARDCODED_SECRET = "HardcodedSecret"
+    TAPJACKING_PARTIAL_OCCLUSION = "TapjackingPartialOcclusion"
 
 class Operator:
     @property

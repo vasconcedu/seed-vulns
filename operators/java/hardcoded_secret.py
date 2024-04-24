@@ -30,43 +30,45 @@ class HardcodedSecret(Operator):
         for sourceFile in candidateSourceFiles:
             self.log.info("Candidate source: %s", sourceFile["file"])
 
-        # Pick a pseudorandom candidate source file
-        self.log.info("Picking a pseudorandom candidate source...")
-        index = randrange(0, len(candidateSourceFiles))
-        resultLine = "Picked source: " + candidateSourceFiles[index]["file"]
-        resultLine += "\n"
-        result += resultLine
+        if len(candidateSourceFiles) != 0:
 
-        # Generate high entropy string 
-        self.log.info("Generating secret...")
-        secret = os.urandom(256).hex()
-        self.log.info("Generated secret: %s", secret)
+            # Pick a pseudorandom candidate source file
+            self.log.info("Picking a pseudorandom candidate source...")
+            index = randrange(0, len(candidateSourceFiles))
+            resultLine = "Picked source: " + candidateSourceFiles[index]["file"]
+            resultLine += "\n"
+            result += resultLine
 
-        self.log.info("Mutating source...")
-        self.log.info("Source is:")
-        source = sourceHandler.readSourceFile(candidateSourceFiles[index]["file"])
-        self.log.info(source)
+            # Generate high entropy string 
+            self.log.info("Generating secret...")
+            secret = os.urandom(256).hex()
+            self.log.info("Generated secret: %s", secret)
 
-        # Inject hardcoded secret into beginning of class definition
-        excerpt = None 
-        mutatedExcerpt = None
+            self.log.info("Mutating source...")
+            self.log.info("Source is:")
+            source = sourceHandler.readSourceFile(candidateSourceFiles[index]["file"])
+            self.log.info(source)
 
-        match = re.search(self.classDefinitionPattern, source)
-        excerpt = source[match.start():match.end()]
-        resultLine = "\nExcerpt:\n" + excerpt
+            # Inject hardcoded secret into beginning of class definition
+            excerpt = None 
+            mutatedExcerpt = None
 
-        if sourceHandler.isJavaSourceFile(candidateSourceFiles[index]["file"]):
-            mutatedExcerpt = excerpt + "\n\n    private static final String KEY = \"" + secret + "\";\n\n"
-        elif sourceHandler.isKotlinSourceFile(candidateSourceFiles[index]["file"]):
-            mutatedExcerpt = excerpt + "\n\n    private const val KEY = \"" + secret + "\"\n\n"
-        source = source.replace(excerpt, mutatedExcerpt)
+            match = re.search(self.classDefinitionPattern, source)
+            excerpt = source[match.start():match.end()]
+            resultLine = "\nExcerpt:\n" + excerpt
 
-        resultLine += "\nMutated excerpt:\n" + mutatedExcerpt
-        result += resultLine
-        self.log.info(resultLine)
+            if sourceHandler.isJavaSourceFile(candidateSourceFiles[index]["file"]):
+                mutatedExcerpt = excerpt + "\n\n    private static final String KEY = \"" + secret + "\";\n\n"
+            elif sourceHandler.isKotlinSourceFile(candidateSourceFiles[index]["file"]):
+                mutatedExcerpt = excerpt + "\n\n    private const val KEY = \"" + secret + "\"\n\n"
+            source = source.replace(excerpt, mutatedExcerpt)
 
-        self.log.info("Mutated source is:")
-        self.log.info(source)
+            resultLine += "\nMutated excerpt:\n" + mutatedExcerpt
+            result += resultLine
+            self.log.info(resultLine)
+
+            self.log.info("Mutated source is:")
+            self.log.info(source)
 
         result += "========== End of Hardcoded Secret Operator ==========\n"
         return result
