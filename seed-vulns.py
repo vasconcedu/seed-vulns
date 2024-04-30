@@ -30,7 +30,8 @@ def main():
     destinationPath = args.destinationPath
     operators = args.operators.split(',')
     single = args.single
-    logArguments(log, sourcePath, destinationPath, operators, single)
+    commentMutations = args.comment_mutations
+    logArguments(log, sourcePath, destinationPath, operators, single, commentMutations)
 
     # Copy the source path to the destination path. Mutations
     # shall ovewrite the files in the destination path
@@ -91,7 +92,7 @@ def main():
             if not single:
                 copyDestination(log, sourcePath, path)
                 manifestHandler = ManifestHandler(path)
-            result = operator.mutate(manifestHandler)
+            result = operator.mutate(manifestHandler, commentMutations)
             if not single:
                 removeDestination(log, result, path)
             report = appendResult(report, result)
@@ -100,7 +101,7 @@ def main():
                 copyDestination(log, sourcePath, path)
                 sourceHandler = SourceHandler(path)
                 sourceHandler.findSourceFiles()
-            result = operator.mutate(sourceHandler)
+            result = operator.mutate(sourceHandler, commentMutations)
             if not single:
                 removeDestination(log, result, path)
             report = appendResult(report, result)
@@ -109,7 +110,7 @@ def main():
                 copyDestination(log, sourcePath, path)
                 resourcesHandler = ResourcesHandler(path)
                 resourcesHandler.findResourceFiles()
-            result = operator.mutate(resourcesHandler)
+            result = operator.mutate(resourcesHandler, commentMutations)
             if not single:
                 removeDestination(log, result, path)
             report = appendResult(report, result)
@@ -192,6 +193,7 @@ def parseArguments():
     parser.add_argument('destinationPath', help='Destination path to which the resulting mutated app will be saved')
     parser.add_argument('--operators', help='Comma-separeted list of mutation operators to be applied to the app', required=True)
     parser.add_argument('-s', '--single', help='Output one single higher order mutant containing all mutations', action='store_true')
+    parser.add_argument('-c', '--comment-mutations', help='Comment all mutations in the source code', action='store_true')
 
     args = parser.parse_args()
 
@@ -210,12 +212,13 @@ def setupLogging():
 
     return log
 
-def logArguments(log, sourcePath, destinationPath, operators, single):
+def logArguments(log, sourcePath, destinationPath, operators, single, commentMutations):
     log.info("seed-vulns has been initiated with the following arguments:")
     log.info("- Source path: %s", sourcePath)
     log.info("- Destination path: %s", destinationPath)
     log.info("- Operators: %s", operators)
     log.info("- Single: %s", "True" if single else "False")
+    log.info("- Comment mutations: %s", "True" if commentMutations else "False")
 
 if __name__ == '__main__':
     main()

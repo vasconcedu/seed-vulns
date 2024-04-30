@@ -25,7 +25,7 @@ class ImplicitPendingIntent(Operator):
     def __init__(self, log):
         super().__init__(log)
 
-    def mutate(self, sourceHandler):
+    def mutate(self, sourceHandler, commentMutations):
         mutated = False  
         result = "\n========== Implicit Pending Intent Operator ==========\n"
 
@@ -59,7 +59,7 @@ class ImplicitPendingIntent(Operator):
             self.log.info(source)
             match = re.search(candidateSourceFiles[index]["pattern"], source)
             excerpt = source[match.start():match.end()]
-            mutatedExcerpt = excerpt.replace("FLAG_IMMUTABLE", "FLAG_MUTABLE")
+            mutatedExcerpt = excerpt.replace("FLAG_IMMUTABLE", "FLAG_MUTABLE {}".format(self.getComment()))
             source = source.replace(excerpt, mutatedExcerpt)
             resultLine = "\nExcerpt:\n"
             resultLine += excerpt
@@ -75,6 +75,7 @@ class ImplicitPendingIntent(Operator):
             # Write mutated source to file 
             self.log.info("Writing mutated source to file...")
             sourceHandler.writeSourceFile(candidateSourceFiles[index]["file"], source)
+            self.log.info("Successfully wrote source to file")
 
         result += "========== End of Implicit Pending Intent Operator ==========\n"
         return result if mutated else None

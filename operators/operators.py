@@ -6,6 +6,10 @@ class OperatorTypes(Enum):
     JAVA = "Java"
     XML_RESOURCES = "XML_RESOURCES"
 
+class MutationComment(Enum):
+    MUTATION_COMMENT_XML = "Mutated by seed-vulns" # No need for <!-- --> because lxml already includes it 
+    MUTATION_COMMENT_JAVA = "/* Mutated by seed-vulns */"
+
 class OperatorNames(Enum):
     IMPROPER_EXPORT = "ImproperExport"
     DEBUGGABLE_APPLICATION = "DebuggableApplication"
@@ -19,6 +23,7 @@ class OperatorNames(Enum):
     PLAINTEXT_HTTP = "PlaintextHttp"
 
 class Operator:
+
     @property
     def name(self):
         pass
@@ -30,6 +35,11 @@ class Operator:
     def __init__(self, log):
         self.log = log
 
+    def getComment(self):
+        return MutationComment.MUTATION_COMMENT_XML.value if (
+            type(self) in [OperatorTypes.XML_MANIFEST.value, OperatorTypes.XML_RESOURCES.value]
+        ) else MutationComment.MUTATION_COMMENT_JAVA.value 
+
     @abstractmethod
-    def mutate(self, handler=None):
+    def mutate(self, handler=None, commentMutations=False):
         pass

@@ -13,7 +13,7 @@ class TapjackingPartialOcclusion(Operator):
     def __init__(self, log):
         super().__init__(log)
 
-    def mutate(self, sourceHandler):
+    def mutate(self, sourceHandler, commentMutations):
         mutated = False 
         result = "\n========== Tapjacking Partial Occlusion Operator ==========\n"
 
@@ -52,10 +52,10 @@ class TapjackingPartialOcclusion(Operator):
             insert = None
             if sourceHandler.isJavaSourceFile(candidateSourceFiles[index]["file"]):
                 insert = excerpt.split("(")[1].split("MotionEvent")[1].split(")")[0].strip()
-                mutatedExcerpt = excerpt.replace(excerpt[excerpt.find("{"):], mutatedExcerpt.format(insert + ");"))
+                mutatedExcerpt = excerpt.replace(excerpt[excerpt.find("{"):], mutatedExcerpt.format(insert + "); {}".format(self.getComment())))
             elif sourceHandler.isKotlinSourceFile(candidateSourceFiles[index]["file"]):
                 insert = excerpt.split("(")[1].split(":")[0].strip()
-                mutatedExcerpt = excerpt.replace(excerpt[excerpt.find("{"):], mutatedExcerpt.format(insert + ")"))
+                mutatedExcerpt = excerpt.replace(excerpt[excerpt.find("{"):], mutatedExcerpt.format(insert + ") {}".format(self.getComment())))
             source = source.replace(excerpt, mutatedExcerpt)
             resultLine = "\nExcerpt:\n"
             resultLine += excerpt
@@ -70,6 +70,7 @@ class TapjackingPartialOcclusion(Operator):
             # Write mutated source to file
             self.log.info("Writing mutated source to file...")
             sourceHandler.writeSourceFile(candidateSourceFiles[index]["file"], source)
+            self.log.info("Successfully wrote source to file")
 
         result += "========== End of Tapjacking Partial Occlusion Operator ==========\n"
         return result if mutated else None

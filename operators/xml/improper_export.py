@@ -10,7 +10,7 @@ class ImproperExport(Operator):
     def __init__(self, log):
         super().__init__(log)
 
-    def mutate(self, manifestHandler):
+    def mutate(self, manifestHandler, commentMutations):
         mutated = False 
         result = "\n========== Improper Export Operator ==========\n"
         nonExportedComponents = None
@@ -52,7 +52,7 @@ class ImproperExport(Operator):
             result += resultLine + "\n"
             
             self.log.info("Replacing component in manifest...")
-            manifestHandler.replaceComponentAttrib(component["component"], component["name"])
+            manifestHandler.replaceComponentAttrib(component["component"], component["name"], self.getComment())
             self.log.info("Successfully replaced component in manifest. New manifest is:")
             self.log.info(manifestHandler.getManifestString())
 

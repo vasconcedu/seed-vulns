@@ -41,18 +41,19 @@ class ManifestHandler:
     def getManifestString(self):
         return ET.tostring(self.manifestXml, pretty_print=True).decode("utf-8")
     
-    def queryAndReplaceAttrib(self, query, new):
+    def queryAndReplaceAttrib(self, query, new, comment):
         old = self.manifestXml.find(query, namespaces=self.namespace)
+        old.append(ET.Comment(comment))
         for attrib in new.attrib:
             old.attrib[attrib] = new.attrib[attrib]
 
-    def replaceApplicationAttrib(self, newApplication):
+    def replaceApplicationAttrib(self, newApplication, comment):
         query = ".//application"
-        self.queryAndReplaceAttrib(query, newApplication)
+        self.queryAndReplaceAttrib(query, newApplication, comment)
 
-    def replaceComponentAttrib(self, newComponent, componentName):
+    def replaceComponentAttrib(self, newComponent, componentName, comment):
         query = ".//" + newComponent.tag + "[@android:name='" + componentName + "']"
-        self.queryAndReplaceAttrib(query, newComponent)
+        self.queryAndReplaceAttrib(query, newComponent, comment)
         
     def findComponentsWithoutExported(self, type):
         query = ".//" + type

@@ -8,7 +8,7 @@ class PlaintextHttp(Operator):
     def __init__(self, log):
         super().__init__(log)
 
-    def mutate(self, manifestHandler):
+    def mutate(self, manifestHandler, commentMutations):
         mutated = False 
         result = "\n========== Plaintext HTTP Operator ==========\n"
 
@@ -38,7 +38,7 @@ class PlaintextHttp(Operator):
                 mutated = True
                 application.attrib["{" + list(manifestHandler.namespace.values())[0] + "}usesCleartextTraffic"] = "true"
                 self.log.info("Application does not use cleartext traffic. Mutating...")
-                manifestHandler.replaceApplicationAttrib(application)
+                manifestHandler.replaceApplicationAttrib(application, self.getComment())
                 self.log.info("Successfully mutated application. New manifest is:")
                 self.log.info(manifestHandler.getManifestString())
             case _:

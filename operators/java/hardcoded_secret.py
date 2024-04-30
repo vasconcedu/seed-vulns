@@ -15,7 +15,7 @@ class HardcodedSecret(Operator):
     def __init__(self, log):
         super().__init__(log)
 
-    def mutate(self, sourceHandler):
+    def mutate(self, sourceHandler, commentMutations):
         mutated = False 
         result = "\n========== Hardcoded Secret Operator ==========\n"
 
@@ -60,9 +60,9 @@ class HardcodedSecret(Operator):
             resultLine = "\nExcerpt:\n" + excerpt
 
             if sourceHandler.isJavaSourceFile(candidateSourceFiles[index]["file"]):
-                mutatedExcerpt = excerpt + "\n\n    private static final String KEY = \"" + secret + "\";\n\n"
+                mutatedExcerpt = excerpt + "\n\n    private static final String KEY = \"" + secret + "\"; {}\n\n".format(self.getComment() if commentMutations else "")
             elif sourceHandler.isKotlinSourceFile(candidateSourceFiles[index]["file"]):
-                mutatedExcerpt = excerpt + "\n\n    private const val KEY = \"" + secret + "\"\n\n"
+                mutatedExcerpt = excerpt + "\n\n    private const val KEY = \"" + secret + "\" {}\n\n".format(self.getComment() if commentMutations else "")
             source = source.replace(excerpt, mutatedExcerpt)
 
             resultLine += "\nMutated excerpt:\n" + mutatedExcerpt
@@ -71,6 +71,11 @@ class HardcodedSecret(Operator):
 
             self.log.info("Mutated source is:")
             self.log.info(source)
+
+            # Write mutated source to file
+            self.log.info("Writing mutated source to file...")
+            sourceHandler.writeSourceFile(candidateSourceFiles[index]["file"], source)
+            self.log.info("Successfully wrote source to file")
 
         result += "========== End of Hardcoded Secret Operator ==========\n"
         return result if mutated else None 

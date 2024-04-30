@@ -11,7 +11,7 @@ class TapjackingFullOcclusion(Operator):
     def __init__(self, log):
         super().__init__(log)
 
-    def mutate(self, resourcesHandler):
+    def mutate(self, resourcesHandler, commentMutations):
         mutated = False 
         result = "\n========== Tapjacking Full Occlusion (XML) ==========\n"
 
@@ -61,6 +61,7 @@ class TapjackingFullOcclusion(Operator):
             # Write mutated resource to file
             self.log.info("Writing mutated resource to file...")
             resourcesHandler.writeResourceFile(candidateResourceFiles[index]["file"], resource)
+            self.log.info("Successfully wrote resource to file")
 
         result += "========== End of Tapjacking Full Occlusion (XML) ==========\n"
         return result if mutated else None

@@ -14,7 +14,7 @@ class TapjackingFullOcclusion(Operator):
     def __init__(self, log):
         super().__init__(log)
 
-    def mutate(self, sourceHandler):
+    def mutate(self, sourceHandler, commentMutations):
         mutated = False 
         result = "\n========== Tapjacking Full Occlusion (Java) ==========\n"
 
@@ -51,7 +51,7 @@ class TapjackingFullOcclusion(Operator):
             self.log.info(source)
             match = re.search(candidateSourceFiles[index]["pattern"], source)
             excerpt = source[match.start():match.end()]
-            mutatedExcerpt = excerpt.replace("true", "false")
+            mutatedExcerpt = excerpt.replace("true", "false {}".format(self.getComment()))
             source = source.replace(excerpt, mutatedExcerpt)
             resultLine = "\nExcerpt:\n"
             resultLine += excerpt
@@ -66,6 +66,7 @@ class TapjackingFullOcclusion(Operator):
             # Write mutated source to file
             self.log.info("Writing mutated source to file...")
             sourceHandler.writeSourceFile(candidateSourceFiles[index]["file"], source)
+            self.log.info("Successfully wrote source to file")
 
         result += "========== End of Tapjacking Full Occlusion (Java) ==========\n"
         return result if mutated else None
