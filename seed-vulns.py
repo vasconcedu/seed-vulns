@@ -6,14 +6,14 @@ from shutil import copytree
 from manifest.manifest_handler import ManifestHandler
 from operators.java.hardcoded_secret import HardcodedSecret
 from operators.java.implicit_pending_intent import ImplicitPendingIntent
-from operators.java.tapjacking_full_occlusion import TapjackingFullOcclusion as TapjackingFullOcclusion_Java
+from operators.java.tapjacking_full_occlusion import TapjackingFullOcclusion as TapjackingFullOcclusionJava
 from operators.java.tapjacking_partial_occlusion import TapjackingPartialOcclusion
 from operators.java.tapjacking_set_hide_overlay_windows import TapjackingSetHideOverlayWindows
 from operators.operators import OperatorNames, OperatorTypes
 from operators.xml.improper_export import ImproperExport
 from operators.xml.debuggable_application import DebuggableApplication
 from operators.xml.plaintext_http import PlaintextHttp
-from operators.xml.tapjacking_full_occlusion import TapjackingFullOcclusion as TapjackingFullOcclusion_XML
+from operators.xml.tapjacking_full_occlusion import TapjackingFullOcclusion as TapjackingFullOcclusionXml
 from resources.resources_handler import ResourcesHandler
 from source.source_handler import SourceHandler
 
@@ -142,8 +142,8 @@ def instantiateOperators(log, operators):
             # Specifying operator TapjackingFullOcclusion activates 
             # both Java and XML full occlusion operators
             case OperatorNames.TAPJACKING_FULL_OCCLUSION.value:
-                queue.append(TapjackingFullOcclusion_XML(log))
-                queue.append(TapjackingFullOcclusion_Java(log))
+                queue.append(TapjackingFullOcclusionXml(log))
+                queue.append(TapjackingFullOcclusionJava(log))
             case OperatorNames.TAPJACKING_PARTIAL_OCCLUSION.value:
                 queue.append(TapjackingPartialOcclusion(log))
             case OperatorNames.TAPJACKING_SET_HIDE_OVERLAY_WINDOWS.value:
