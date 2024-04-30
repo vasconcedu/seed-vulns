@@ -2,19 +2,18 @@ from random import randrange
 import re
 from operators.operators import Operator, OperatorNames, OperatorTypes
 
-class TapjackingPartialOcclusion(Operator):
-    name = OperatorNames.TAPJACKING_PARTIAL_OCCLUSION
+class TapjackingSetHideOverlayWindows(Operator):
+    name = OperatorNames.TAPJACKING_SET_HIDE_OVERLAY_WINDOWS
     type = OperatorTypes.JAVA
 
-    # Different patterns for Java and Kotlin
-    dispatchTouchEventPatternJava = r"public\s+?boolean\s+?dispatchTouchEvent\s*?\(\s*?MotionEvent(?s).*?\)\s*?{(?s).*?}"
-    dispatchTouchEventPatternKotlin = r"override\s+?fun\s+?dispatchTouchEvent\s*?\((?s).*?:\s*?MotionEvent(?s).*?\)\s*?:\s*?Boolean\s*?{(?s).*?}"
+    # Same pattern for Java and Kotlin
+    setHideOverlayWindows = r"\.(?s)\s*?setHideOverlayWindows(?s)\s*?\((?s)\s*?true(?s)\s*?\)"
 
     def __init__(self, log):
         super().__init__(log)
 
     def mutate(self, sourceHandler):
-        result = "\n========== Tapjacking Partial Occlusion Operator ==========\n"
+        result = "\n========== Tapjacking Set Hide Overlay Windows ==========\n"
 
         # Get sources
         sourceFiles = sourceHandler.findSourceFiles()
@@ -22,8 +21,8 @@ class TapjackingPartialOcclusion(Operator):
         for sourceFile in sourceFiles:
             self.log.info("Source: %s", sourceFile)
 
-        # Find dispatch touch event methods in source files
-        candidateSourceFiles = sourceHandler.matchSourceFiles([self.dispatchTouchEventPatternJava, self.dispatchTouchEventPatternKotlin])
+        # Find set hide overlay windows calls in source files
+        candidateSourceFiles = sourceHandler.matchSourceFiles([self.setHideOverlayWindows])
         self.log.info("Found %d candidate sources:", len(candidateSourceFiles))
         for sourceFile in candidateSourceFiles:
             self.log.info("Candidate source: %s", sourceFile["file"])
@@ -34,7 +33,7 @@ class TapjackingPartialOcclusion(Operator):
             self.log.info("Picking a pseudorandom candidate source...")
             index = randrange(0, len(candidateSourceFiles))
             resultLine = "Picked source: " + candidateSourceFiles[index]["file"]
-            resultLine += "\n- dispatchTouchEvent regex pattern: " + candidateSourceFiles[index]["pattern"]
+            resultLine += "\n- setHideOverlayWindows pattern: " + candidateSourceFiles[index]["pattern"]
             resultLine += "\n"
             result += resultLine
             self.log.info(resultLine)
@@ -46,14 +45,7 @@ class TapjackingPartialOcclusion(Operator):
             self.log.info(source)
             match = re.search(candidateSourceFiles[index]["pattern"], source)
             excerpt = source[match.start():match.end()]
-            mutatedExcerpt = "{{\n\n        return super.dispatchTouchEvent({}\n\n    }}"
-            insert = None
-            if sourceHandler.isJavaSourceFile(candidateSourceFiles[index]["file"]):
-                insert = excerpt.split("(")[1].split("MotionEvent")[1].split(")")[0].strip()
-                mutatedExcerpt = excerpt.replace(excerpt[excerpt.find("{"):], mutatedExcerpt.format(insert + ");"))
-            elif sourceHandler.isKotlinSourceFile(candidateSourceFiles[index]["file"]):
-                insert = excerpt.split("(")[1].split(":")[0].strip()
-                mutatedExcerpt = excerpt.replace(excerpt[excerpt.find("{"):], mutatedExcerpt.format(insert + ")"))
+            mutatedExcerpt = excerpt.replace("true", "false")
             source = source.replace(excerpt, mutatedExcerpt)
             resultLine = "\nExcerpt:\n"
             resultLine += excerpt
@@ -69,6 +61,6 @@ class TapjackingPartialOcclusion(Operator):
             self.log.info("Writing mutated source to file...")
             sourceHandler.writeSourceFile(candidateSourceFiles[index]["file"], source)
 
-        result += "========== End of Tapjacking Partial Occlusion Operator ==========\n"
+        result += "========== End of Tapjacking Set Hide Overlay Windows ==========\n"
         return result
     

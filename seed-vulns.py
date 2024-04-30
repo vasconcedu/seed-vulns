@@ -7,6 +7,7 @@ from manifest.manifest_handler import ManifestHandler
 from operators.java.hardcoded_secret import HardcodedSecret
 from operators.java.implicit_pending_intent import ImplicitPendingIntent
 from operators.java.tapjacking_partial_occlusion import TapjackingPartialOcclusion
+from operators.java.tapjacking_set_hide_overlay_windows import TapjackingSetHideOverlayWindows
 from operators.operators import OperatorNames, OperatorTypes
 from operators.xml.improper_export import ImproperExport
 from operators.xml.debuggable_application import DebuggableApplication
@@ -104,6 +105,8 @@ def instantiateOperators(log, operators):
                 queue.append(HardcodedSecret(log))
             case OperatorNames.TAPJACKING_PARTIAL_OCCLUSION.value:
                 queue.append(TapjackingPartialOcclusion(log))
+            case OperatorNames.TAPJACKING_SET_HIDE_OVERLAY_WINDOWS.value:
+                queue.append(TapjackingSetHideOverlayWindows(log))
             case _:
                 log.error("Invalid operator: %s", operator)
                 exit(1)

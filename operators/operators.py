@@ -11,6 +11,7 @@ class OperatorNames(Enum):
     IMPLICIT_PENDING_INTENT = "ImplicitPendingIntent"
     HARDCODED_SECRET = "HardcodedSecret"
     TAPJACKING_PARTIAL_OCCLUSION = "TapjackingPartialOcclusion"
+    TAPJACKING_SET_HIDE_OVERLAY_WINDOWS = "TapjackingSetHideOverlayWindows"
 
 class Operator:
     @property
