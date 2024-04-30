@@ -6,11 +6,14 @@ from shutil import copytree
 from manifest.manifest_handler import ManifestHandler
 from operators.java.hardcoded_secret import HardcodedSecret
 from operators.java.implicit_pending_intent import ImplicitPendingIntent
+from operators.java.tapjacking_full_occlusion import TapjackingFullOcclusion as TapjackingFullOcclusion_Java
 from operators.java.tapjacking_partial_occlusion import TapjackingPartialOcclusion
 from operators.java.tapjacking_set_hide_overlay_windows import TapjackingSetHideOverlayWindows
 from operators.operators import OperatorNames, OperatorTypes
 from operators.xml.improper_export import ImproperExport
 from operators.xml.debuggable_application import DebuggableApplication
+from operators.xml.tapjacking_full_occlusion import TapjackingFullOcclusion as TapjackingFullOcclusion_XML
+from resources.resources_handler import ResourcesHandler
 from source.source_handler import SourceHandler
 
 def main():
@@ -37,10 +40,15 @@ def main():
     log.info("Instantiating operators...")
     operatorsQueue = instantiateOperators(log, operators)
 
+    # Source file handlers 
+    manifestHandler = None 
+    sourceHandler = None
+    resourcesHandler = None
+
     # Find and parse Android manifest if needed. That is, if
     # there are any XML-based operators in the queue
     if needManifest(operatorsQueue):
-        log.info("Found queued manifest-based operator. Parsing manifest...")
+        log.info("Found queued manifest-based operators. Parsing manifest...")
         manifestHandler = ManifestHandler(destinationPath)
 
         if manifestHandler.findManifest():
@@ -58,9 +66,18 @@ def main():
     # Find source files if needed. That is, if there are any
     # Java-based operators in the queue
     if needSources(operatorsQueue):
-        log.info("Found queued source-based operator. Finding source files...")
+        log.info("Found queued source-based operators. Finding source files...")
         sourceHandler = SourceHandler(destinationPath)
         sourceHandler.findSourceFiles()
+
+    # Find resource files if needed. That is, if there are any
+    # XML-based operators in the queue
+    if needResources(operatorsQueue):
+        log.info("Found queued resource-based operators. Finding resource files...")
+        resourcesHandler = ResourcesHandler(destinationPath)
+        resourcesHandler.findResourceFiles()
+        for resourceFile in resourcesHandler.resourceFiles:
+            log.info("Resource file: %s", resourceFile)
     
     # Enter mutation loop. For each operator in the queue,
     # apply the mutation to the app and save the mutated app
@@ -72,12 +89,22 @@ def main():
     report = "\n========== Mutation Report ==========\n"
     for operator in operatorsQueue:
         log.info("Applying operator: %s", operator.name.value)
-        if operator.type == OperatorTypes.XML:
+        if operator.type == OperatorTypes.XML_MANIFEST:
             report += operator.mutate(manifestHandler)
-        else:
+        elif operator.type == OperatorTypes.JAVA:
             report += operator.mutate(sourceHandler)
+        elif operator.type == OperatorTypes.XML_RESOURCES:
+            report += operator.mutate(resourcesHandler)
+        else: 
+            log.error("Invalid operator type: %s", operator.type)
+            exit(1)
     
     log.info(report)
+
+def needResources(operatorsQueue):
+    for operator in operatorsQueue:
+        if operator.type == OperatorTypes.XML_RESOURCES:
+            return True
 
 def needSources(operatorsQueue):
     for operator in operatorsQueue:
@@ -86,7 +113,7 @@ def needSources(operatorsQueue):
 
 def needManifest(operatorsQueue):
     for operator in operatorsQueue:
-        if operator.type == OperatorTypes.XML:
+        if operator.type == OperatorTypes.XML_MANIFEST:
             return True
 
 def instantiateOperators(log, operators):
@@ -103,6 +130,9 @@ def instantiateOperators(log, operators):
                 queue.append(ImplicitPendingIntent(log))
             case OperatorNames.HARDCODED_SECRET.value:
                 queue.append(HardcodedSecret(log))
+            case OperatorNames.TAPJACKING_FULL_OCCLUSION.value:
+                queue.append(TapjackingFullOcclusion_XML(log))
+                queue.append(TapjackingFullOcclusion_Java(log))
             case OperatorNames.TAPJACKING_PARTIAL_OCCLUSION.value:
                 queue.append(TapjackingPartialOcclusion(log))
             case OperatorNames.TAPJACKING_SET_HIDE_OVERLAY_WINDOWS.value:

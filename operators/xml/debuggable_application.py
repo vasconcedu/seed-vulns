@@ -3,7 +3,7 @@ from operators.operators import Operator, OperatorNames, OperatorTypes
 class DebuggableApplication(Operator):
 
     name = OperatorNames.DEBUGGABLE_APPLICATION
-    type = OperatorTypes.XML
+    type = OperatorTypes.XML_MANIFEST
 
     def __init__(self, log):
         super().__init__(log)

@@ -5,7 +5,7 @@ from operators.operators import Operator, OperatorNames, OperatorTypes
 class ImproperExport(Operator):
 
     name = OperatorNames.IMPROPER_EXPORT
-    type = OperatorTypes.XML
+    type = OperatorTypes.XML_MANIFEST
 
     def __init__(self, log):
         super().__init__(log)

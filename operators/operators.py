@@ -2,14 +2,16 @@ from abc import abstractmethod
 from enum import Enum
 
 class OperatorTypes(Enum):
-    XML = "XML"
+    XML_MANIFEST = "XML_MANIFEST"
     JAVA = "Java"
+    XML_RESOURCES = "XML_RESOURCES"
 
 class OperatorNames(Enum):
     IMPROPER_EXPORT = "ImproperExport"
     DEBUGGABLE_APPLICATION = "DebuggableApplication"
     IMPLICIT_PENDING_INTENT = "ImplicitPendingIntent"
     HARDCODED_SECRET = "HardcodedSecret"
+    TAPJACKING_FULL_OCCLUSION = "TapjackingFullOcclusion"
     TAPJACKING_PARTIAL_OCCLUSION = "TapjackingPartialOcclusion"
     TAPJACKING_SET_HIDE_OVERLAY_WINDOWS = "TapjackingSetHideOverlayWindows"
 
