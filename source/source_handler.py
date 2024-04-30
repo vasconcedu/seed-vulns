@@ -16,6 +16,7 @@ class SourceHandler:
 
     def __init__(self, destinationPath):
         self.destinationPath = destinationPath
+        self.findSourceFiles()
 
     def isJavaSourceFile(self, file):
         return file.endswith(self.sourceFileExtensions[SourceFileExtension.JAVA])

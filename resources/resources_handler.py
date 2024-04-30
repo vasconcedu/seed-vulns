@@ -21,6 +21,7 @@ class ResourcesHandler:
 
     def __init__(self, destinationPath):
         self.destinationPath = destinationPath
+        self.findResourceFiles()
 
     def writeResourceFile(self, file, content):
         with open(file, "w") as f:

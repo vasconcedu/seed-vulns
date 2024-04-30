@@ -16,6 +16,8 @@ class ManifestHandler:
 
     def __init__(self, destinationPath):
         self.destinationPath = destinationPath
+        self.findManifest()
+        self.parseManifest()
 
     def writeManifest(self):
         with open(self.manifestPath, "w") as f:

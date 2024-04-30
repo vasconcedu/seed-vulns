@@ -11,7 +11,9 @@ class OperatorNames(Enum):
     DEBUGGABLE_APPLICATION = "DebuggableApplication"
     IMPLICIT_PENDING_INTENT = "ImplicitPendingIntent"
     HARDCODED_SECRET = "HardcodedSecret"
-    TAPJACKING_FULL_OCCLUSION = "TapjackingFullOcclusion"
+    TAPJACKING_FULL_OCCLUSION = "TapjackingFullOcclusion" # Activates both Java and XML full occlusion operators
+    TAPJACKING_FULL_OCCLUSION_JAVA = "TapjackingFullOcclusionJava"
+    TAPJACKING_FULL_OCCLUSION_XML = "TapjackingFullOcclusionXml"
     TAPJACKING_PARTIAL_OCCLUSION = "TapjackingPartialOcclusion"
     TAPJACKING_SET_HIDE_OVERLAY_WINDOWS = "TapjackingSetHideOverlayWindows"
     PLAINTEXT_HTTP = "PlaintextHttp"

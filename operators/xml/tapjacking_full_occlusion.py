@@ -3,7 +3,7 @@ import re
 from operators.operators import Operator, OperatorNames, OperatorTypes
 
 class TapjackingFullOcclusion(Operator):
-    name = OperatorNames.TAPJACKING_FULL_OCCLUSION
+    name = OperatorNames.TAPJACKING_FULL_OCCLUSION_XML
     type = OperatorTypes.XML_RESOURCES
 
     filterTouchesWhenObscured = r"filterTouchesWhenObscured=\"true\""

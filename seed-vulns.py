@@ -29,12 +29,14 @@ def main():
     sourcePath = args.sourcePath
     destinationPath = args.destinationPath
     operators = args.operators.split(',')
-    logArguments(log, sourcePath, destinationPath, operators)
+    single = args.single
+    logArguments(log, sourcePath, destinationPath, operators, single)
 
     # Copy the source path to the destination path. Mutations
-    # ovewrite the files in the destination path
-    log.info("Copying the source path to the destination path...")
-    copyDestination(log, sourcePath, destinationPath)
+    # shall ovewrite the files in the destination path
+    if single:
+        log.info("Copying the source path to the destination path...")
+        copyDestination(log, sourcePath, destinationPath)
 
     # Instantiate operators, by mapping the operator names to
     # the corresponding classes 
@@ -46,39 +48,31 @@ def main():
     sourceHandler = None
     resourcesHandler = None
 
-    # Find and parse Android manifest if needed. That is, if
-    # there are any XML-based operators in the queue
-    if needManifest(operatorsQueue):
-        log.info("Found queued manifest-based operators. Parsing manifest...")
-        manifestHandler = ManifestHandler(destinationPath)
+    # If single, then instantiate all source file handlers
+    # in advance, since the destination path is always the same
+    if single: 
+        # Find and parse Android manifest if needed. That is, if
+        # there are any XML-based operators in the queue
+        if needManifest(operatorsQueue):
+            log.info("Found queued manifest-based operators. Parsing manifest...")
+            manifestHandler = ManifestHandler(destinationPath)
+            log.info("Manifest path: %s", manifestHandler.manifestPath)
 
-        if manifestHandler.findManifest():
-            log.info("Manifest found at: %s. Parsing...", manifestHandler.manifestPath)
+        # Find source files if needed. That is, if there are any
+        # Java-based operators in the queue
+        if needSources(operatorsQueue):
+            log.info("Found queued source-based operators. Finding source files...")
+            sourceHandler = SourceHandler(destinationPath)
+            for sourceFile in sourceHandler.sourceFiles:
+                log.info("Source file: %s", sourceFile)
 
-            if manifestHandler.parseManifest():
-                log.info("Manifest parsed successfully")
-            else:
-                log.error("An error occurred while parsing the manifest. Exiting...")
-                exit(1)
-        else:
-            log.error("Manifest not found, but manifest-based operators specified. Exiting...")
-            exit(1)
-
-    # Find source files if needed. That is, if there are any
-    # Java-based operators in the queue
-    if needSources(operatorsQueue):
-        log.info("Found queued source-based operators. Finding source files...")
-        sourceHandler = SourceHandler(destinationPath)
-        sourceHandler.findSourceFiles()
-
-    # Find resource files if needed. That is, if there are any
-    # XML-based operators in the queue
-    if needResources(operatorsQueue):
-        log.info("Found queued resource-based operators. Finding resource files...")
-        resourcesHandler = ResourcesHandler(destinationPath)
-        resourcesHandler.findResourceFiles()
-        for resourceFile in resourcesHandler.resourceFiles:
-            log.info("Resource file: %s", resourceFile)
+        # Find resource files if needed. That is, if there are any
+        # XML-based operators in the queue
+        if needResources(operatorsQueue):
+            log.info("Found queued resource-based operators. Finding resource files...")
+            resourcesHandler = ResourcesHandler(destinationPath)
+            for resourceFile in resourcesHandler.resourceFiles:
+                log.info("Resource file: %s", resourceFile)
     
     # Enter mutation loop. For each operator in the queue,
     # apply the mutation to the app and save the mutated app
@@ -90,11 +84,25 @@ def main():
     report = "\n========== Mutation Report ==========\n"
     for operator in operatorsQueue:
         log.info("Applying operator: %s", operator.name.value)
+        path = None 
+        if not single: 
+            path = "{}_{}".format(destinationPath, operator.name.value)
         if operator.type == OperatorTypes.XML_MANIFEST:
+            if not single:
+                copyDestination(log, sourcePath, path)
+                manifestHandler = ManifestHandler(path)
             report += operator.mutate(manifestHandler)
         elif operator.type == OperatorTypes.JAVA:
+            if not single: 
+                copyDestination(log, sourcePath, path)
+                sourceHandler = SourceHandler(path)
+                sourceHandler.findSourceFiles()
             report += operator.mutate(sourceHandler)
         elif operator.type == OperatorTypes.XML_RESOURCES:
+            if not single: 
+                copyDestination(log, sourcePath, path)
+                resourcesHandler = ResourcesHandler(path)
+                resourcesHandler.findResourceFiles()
             report += operator.mutate(resourcesHandler)
         else: 
             log.error("Invalid operator type: %s", operator.type)
@@ -131,6 +139,8 @@ def instantiateOperators(log, operators):
                 queue.append(ImplicitPendingIntent(log))
             case OperatorNames.HARDCODED_SECRET.value:
                 queue.append(HardcodedSecret(log))
+            # Specifying operator TapjackingFullOcclusion activates 
+            # both Java and XML full occlusion operators
             case OperatorNames.TAPJACKING_FULL_OCCLUSION.value:
                 queue.append(TapjackingFullOcclusion_XML(log))
                 queue.append(TapjackingFullOcclusion_Java(log))
@@ -161,6 +171,7 @@ def parseArguments():
     parser.add_argument('sourcePath', help='Source path containing the original app')
     parser.add_argument('destinationPath', help='Destination path to which the resulting mutated app will be saved')
     parser.add_argument('--operators', help='Comma-separeted list of mutation operators to be applied to the app', required=True)
+    parser.add_argument('-s', '--single', help='Output one single higher order mutant containing all mutations', action='store_true')
 
     args = parser.parse_args()
 
@@ -179,11 +190,12 @@ def setupLogging():
 
     return log
 
-def logArguments(log, sourcePath, destinationPath, operators):
+def logArguments(log, sourcePath, destinationPath, operators, single):
     log.info("seed-vulns has been initiated with the following arguments:")
     log.info("- Source path: %s", sourcePath)
     log.info("- Destination path: %s", destinationPath)
     log.info("- Operators: %s", operators)
+    log.info("- Single: %s", "True" if single else "False")
 
 if __name__ == '__main__':
     main()
