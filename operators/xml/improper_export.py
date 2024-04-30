@@ -11,6 +11,7 @@ class ImproperExport(Operator):
         super().__init__(log)
 
     def mutate(self, manifestHandler):
+        mutated = False 
         result = "\n========== Improper Export Operator ==========\n"
         nonExportedComponents = None
         try:
@@ -22,6 +23,7 @@ class ImproperExport(Operator):
             exit(1)
 
         if len(nonExportedComponents) != 0:
+            mutated = True
 
             self.log.info("Pseudorandomly picking component to mutate...")
             index = randrange(0, len(nonExportedComponents))
@@ -59,4 +61,4 @@ class ImproperExport(Operator):
             self.log.info("Successfully wrote manifest to file")
 
         result += "========== End of Improper Export Operator ==========\n"
-        return result 
+        return result if mutated else None

@@ -12,6 +12,7 @@ class TapjackingFullOcclusion(Operator):
         super().__init__(log)
 
     def mutate(self, resourcesHandler):
+        mutated = False 
         result = "\n========== Tapjacking Full Occlusion (XML) ==========\n"
 
         # Get resources
@@ -27,6 +28,7 @@ class TapjackingFullOcclusion(Operator):
             self.log.info("Candidate resource: %s", resourceFile["file"])
 
         if len(candidateResourceFiles) != 0:
+            mutated = True 
 
             # Pick a pseudorandom candidate resource file
             self.log.info("Picking a pseudorandom candidate resource...")
@@ -61,5 +63,5 @@ class TapjackingFullOcclusion(Operator):
             resourcesHandler.writeResourceFile(candidateResourceFiles[index]["file"], resource)
 
         result += "========== End of Tapjacking Full Occlusion (XML) ==========\n"
-        return result
+        return result if mutated else None
     

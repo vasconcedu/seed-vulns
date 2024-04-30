@@ -15,6 +15,7 @@ class TapjackingFullOcclusion(Operator):
         super().__init__(log)
 
     def mutate(self, sourceHandler):
+        mutated = False 
         result = "\n========== Tapjacking Full Occlusion (Java) ==========\n"
 
         # Get sources
@@ -30,6 +31,7 @@ class TapjackingFullOcclusion(Operator):
             self.log.info("Candidate source: %s", sourceFile["file"])
 
         if len(candidateSourceFiles) != 0:
+            mutated = True 
 
             # Pick a pseudorandom candidate source file
             self.log.info("Picking a pseudorandom candidate source...")
@@ -66,5 +68,5 @@ class TapjackingFullOcclusion(Operator):
             sourceHandler.writeSourceFile(candidateSourceFiles[index]["file"], source)
 
         result += "========== End of Tapjacking Full Occlusion (Java) ==========\n"
-        return result
+        return result if mutated else None
     

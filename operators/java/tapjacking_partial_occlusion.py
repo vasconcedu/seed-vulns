@@ -14,6 +14,7 @@ class TapjackingPartialOcclusion(Operator):
         super().__init__(log)
 
     def mutate(self, sourceHandler):
+        mutated = False 
         result = "\n========== Tapjacking Partial Occlusion Operator ==========\n"
 
         # Get sources
@@ -29,6 +30,7 @@ class TapjackingPartialOcclusion(Operator):
             self.log.info("Candidate source: %s", sourceFile["file"])
 
         if len(candidateSourceFiles) != 0:
+            mutated = True 
 
             # Pick a pseudorandom candidate source file
             self.log.info("Picking a pseudorandom candidate source...")
@@ -70,5 +72,5 @@ class TapjackingPartialOcclusion(Operator):
             sourceHandler.writeSourceFile(candidateSourceFiles[index]["file"], source)
 
         result += "========== End of Tapjacking Partial Occlusion Operator ==========\n"
-        return result
+        return result if mutated else None
     

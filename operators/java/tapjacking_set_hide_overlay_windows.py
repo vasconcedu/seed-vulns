@@ -13,6 +13,7 @@ class TapjackingSetHideOverlayWindows(Operator):
         super().__init__(log)
 
     def mutate(self, sourceHandler):
+        mutated = False 
         result = "\n========== Tapjacking Set Hide Overlay Windows ==========\n"
 
         # Get sources
@@ -28,6 +29,7 @@ class TapjackingSetHideOverlayWindows(Operator):
             self.log.info("Candidate source: %s", sourceFile["file"])
 
         if len(candidateSourceFiles) != 0:
+            mutated = True 
 
             # Pick a pseudorandom candidate source file
             self.log.info("Picking a pseudorandom candidate source...")
@@ -62,5 +64,5 @@ class TapjackingSetHideOverlayWindows(Operator):
             sourceHandler.writeSourceFile(candidateSourceFiles[index]["file"], source)
 
         result += "========== End of Tapjacking Set Hide Overlay Windows ==========\n"
-        return result
+        return result if mutated else None
     

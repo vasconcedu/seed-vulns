@@ -9,6 +9,7 @@ class DebuggableApplication(Operator):
         super().__init__(log)
 
     def mutate(self, manifestHandler):
+        mutated = False 
         result = "\n========== Debuggable Application Operator ==========\n"
 
         application = None
@@ -34,6 +35,7 @@ class DebuggableApplication(Operator):
                 self.log.info("Application is already debuggable. Skipping...")
                 return ""
             case "false" | None:
+                mutated = True
                 application.attrib["{" + list(manifestHandler.namespace.values())[0] + "}debuggable"] = "true"
                 self.log.info("Application is not debuggable. Mutating...")
                 manifestHandler.replaceApplicationAttrib(application)
@@ -53,4 +55,4 @@ class DebuggableApplication(Operator):
         self.log.info("Successfully wrote manifest to file")
 
         result += "========== End of Debuggable Application Operator ==========\n"
-        return result 
+        return result if mutated else None 

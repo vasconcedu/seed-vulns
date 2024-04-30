@@ -16,6 +16,7 @@ class HardcodedSecret(Operator):
         super().__init__(log)
 
     def mutate(self, sourceHandler):
+        mutated = False 
         result = "\n========== Hardcoded Secret Operator ==========\n"
 
         # Get sources
@@ -31,6 +32,7 @@ class HardcodedSecret(Operator):
             self.log.info("Candidate source: %s", sourceFile["file"])
 
         if len(candidateSourceFiles) != 0:
+            mutated = True 
 
             # Pick a pseudorandom candidate source file
             self.log.info("Picking a pseudorandom candidate source...")
@@ -71,4 +73,4 @@ class HardcodedSecret(Operator):
             self.log.info(source)
 
         result += "========== End of Hardcoded Secret Operator ==========\n"
-        return result
+        return result if mutated else None 

@@ -91,24 +91,27 @@ def main():
             if not single:
                 copyDestination(log, sourcePath, path)
                 manifestHandler = ManifestHandler(path)
-            report += operator.mutate(manifestHandler)
+            report = appendResult(report, operator.mutate(manifestHandler))
         elif operator.type == OperatorTypes.JAVA:
             if not single: 
                 copyDestination(log, sourcePath, path)
                 sourceHandler = SourceHandler(path)
                 sourceHandler.findSourceFiles()
-            report += operator.mutate(sourceHandler)
+            report = appendResult(report, operator.mutate(sourceHandler))
         elif operator.type == OperatorTypes.XML_RESOURCES:
             if not single: 
                 copyDestination(log, sourcePath, path)
                 resourcesHandler = ResourcesHandler(path)
                 resourcesHandler.findResourceFiles()
-            report += operator.mutate(resourcesHandler)
+            report = appendResult(report, operator.mutate(resourcesHandler))
         else: 
             log.error("Invalid operator type: %s", operator.type)
             exit(1)
     
     log.info(report)
+
+def appendResult(report, result):
+    return report + (result if result != None else "")
 
 def needResources(operatorsQueue):
     for operator in operatorsQueue:

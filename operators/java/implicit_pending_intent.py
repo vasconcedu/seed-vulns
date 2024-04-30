@@ -26,6 +26,7 @@ class ImplicitPendingIntent(Operator):
         super().__init__(log)
 
     def mutate(self, sourceHandler):
+        mutated = False  
         result = "\n========== Implicit Pending Intent Operator ==========\n"
 
         # Get sources
@@ -41,6 +42,7 @@ class ImplicitPendingIntent(Operator):
             self.log.info("Candidate source: %s. Pattern: %s", sourceFile["file"], sourceFile["pattern"])
 
         if len(candidateSourceFiles) != 0:
+            mutated = True 
         
             # Pick a random candidate source file
             self.log.info("Picking a pseudorandom candidate source...")
@@ -75,4 +77,4 @@ class ImplicitPendingIntent(Operator):
             sourceHandler.writeSourceFile(candidateSourceFiles[index]["file"], source)
 
         result += "========== End of Implicit Pending Intent Operator ==========\n"
-        return result
+        return result if mutated else None
