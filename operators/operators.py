@@ -7,7 +7,7 @@ class OperatorTypes(Enum):
     XML_RESOURCES = "XML_RESOURCES"
 
 class MutationComment(Enum):
-    MUTATION_COMMENT_XML = "Mutated by seed-vulns" # No need for <!-- --> because lxml already includes it 
+    MUTATION_COMMENT_XML = " Mutated by seed-vulns " # No need for <!-- --> because lxml already includes it 
     MUTATION_COMMENT_JAVA = "/* Mutated by seed-vulns */"
 
 class OperatorNames(Enum):
@@ -37,7 +37,7 @@ class Operator:
 
     def getComment(self):
         return MutationComment.MUTATION_COMMENT_XML.value if (
-            type(self) in [OperatorTypes.XML_MANIFEST.value, OperatorTypes.XML_RESOURCES.value]
+            self.type in [OperatorTypes.XML_MANIFEST, OperatorTypes.XML_RESOURCES]
         ) else MutationComment.MUTATION_COMMENT_JAVA.value 
 
     @abstractmethod
