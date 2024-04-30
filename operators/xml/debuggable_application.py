@@ -33,7 +33,7 @@ class DebuggableApplication(Operator):
         match application.attrib.get("{" + list(manifestHandler.namespace.values())[0] + "}debuggable"):
             case "true":
                 self.log.info("Application is already debuggable. Skipping...")
-                return ""
+                return None 
             case "false" | None:
                 mutated = True
                 application.attrib["{" + list(manifestHandler.namespace.values())[0] + "}debuggable"] = "true"

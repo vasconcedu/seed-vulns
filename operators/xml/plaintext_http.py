@@ -33,7 +33,7 @@ class PlaintextHttp(Operator):
         match application.attrib.get("{" + list(manifestHandler.namespace.values())[0] + "}usesCleartextTraffic"):
             case "true":
                 self.log.info("Application already uses cleartext traffic. Skipping...")
-                return ""
+                return None 
             case "false" | None :
                 mutated = True
                 application.attrib["{" + list(manifestHandler.namespace.values())[0] + "}usesCleartextTraffic"] = "true"

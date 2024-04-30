@@ -2,7 +2,7 @@
 
 import logging
 import argparse
-from shutil import copytree
+from shutil import copytree, rmtree
 from manifest.manifest_handler import ManifestHandler
 from operators.java.hardcoded_secret import HardcodedSecret
 from operators.java.implicit_pending_intent import ImplicitPendingIntent
@@ -91,19 +91,28 @@ def main():
             if not single:
                 copyDestination(log, sourcePath, path)
                 manifestHandler = ManifestHandler(path)
-            report = appendResult(report, operator.mutate(manifestHandler))
+            result = operator.mutate(manifestHandler)
+            if not single:
+                removeDestination(log, result, path)
+            report = appendResult(report, result)
         elif operator.type == OperatorTypes.JAVA:
             if not single: 
                 copyDestination(log, sourcePath, path)
                 sourceHandler = SourceHandler(path)
                 sourceHandler.findSourceFiles()
-            report = appendResult(report, operator.mutate(sourceHandler))
+            result = operator.mutate(sourceHandler)
+            if not single:
+                removeDestination(log, result, path)
+            report = appendResult(report, result)
         elif operator.type == OperatorTypes.XML_RESOURCES:
             if not single: 
                 copyDestination(log, sourcePath, path)
                 resourcesHandler = ResourcesHandler(path)
                 resourcesHandler.findResourceFiles()
-            report = appendResult(report, operator.mutate(resourcesHandler))
+            result = operator.mutate(resourcesHandler)
+            if not single:
+                removeDestination(log, result, path)
+            report = appendResult(report, result)
         else: 
             log.error("Invalid operator type: %s", operator.type)
             exit(1)
@@ -160,6 +169,14 @@ def instantiateOperators(log, operators):
         log.info("Instance of %s has been queued", operator)
 
     return queue
+
+def removeDestination(log, result, path):
+    if result == None:
+        try:
+            rmtree(path)
+        except Exception as e:
+            log.error("An error occurred while removing the destination path: %s", e)
+            exit(1)
 
 def copyDestination(log, sourcePath, destinationPath):
     try:
