@@ -1,15 +1,15 @@
 from operators.operators import Operator, OperatorNames, OperatorTypes
 
-class DebuggableApplication(Operator):
+class PlaintextHttp(Operator):
 
-    name = OperatorNames.DEBUGGABLE_APPLICATION
+    name = OperatorNames.PLAINTEXT_HTTP
     type = OperatorTypes.XML_MANIFEST
 
     def __init__(self, log):
         super().__init__(log)
 
     def mutate(self, manifestHandler):
-        result = "\n========== Debuggable Application Operator ==========\n"
+        result = "\n========== Plaintext HTTP Operator ==========\n"
 
         application = None
         try:
@@ -29,18 +29,18 @@ class DebuggableApplication(Operator):
         self.log.info(resultLine)
         result += resultLine + "\n"
 
-        match application.attrib.get("{" + list(manifestHandler.namespace.values())[0] + "}debuggable"):
+        match application.attrib.get("{" + list(manifestHandler.namespace.values())[0] + "}usesCleartextTraffic"):
             case "true":
-                self.log.info("Application is already debuggable. Skipping...")
+                self.log.info("Application already uses cleartext traffic. Skipping...")
                 return ""
-            case "false" | None:
-                application.attrib["{" + list(manifestHandler.namespace.values())[0] + "}debuggable"] = "true"
-                self.log.info("Application is not debuggable. Mutating...")
+            case "false" | None :
+                application.attrib["{" + list(manifestHandler.namespace.values())[0] + "}usesCleartextTraffic"] = "true"
+                self.log.info("Application does not use cleartext traffic. Mutating...")
                 manifestHandler.replaceApplicationAttrib(application)
                 self.log.info("Successfully mutated application. New manifest is:")
                 self.log.info(manifestHandler.getManifestString())
             case _:
-                self.log.error("Invalid value for debuggable: %s", application.attrib.get("{" + list(manifestHandler.namespace.values())[0] + "}debuggable"))
+                self.log.error("Invalid value for usesCleartextTraffic: %s", application.attrib.get("{" + list(manifestHandler.namespace.values())[0] + "}usesCleartextTraffic"))
                 exit(1)
         
         resultLine = "Mutated application:"
@@ -52,5 +52,5 @@ class DebuggableApplication(Operator):
         manifestHandler.writeManifest()
         self.log.info("Successfully wrote manifest to file")
 
-        result += "========== End of Debuggable Application Operator ==========\n"
+        result += "========== End of Plaintext HTTP Operator ==========\n"
         return result 

@@ -12,6 +12,7 @@ from operators.java.tapjacking_set_hide_overlay_windows import TapjackingSetHide
 from operators.operators import OperatorNames, OperatorTypes
 from operators.xml.improper_export import ImproperExport
 from operators.xml.debuggable_application import DebuggableApplication
+from operators.xml.plaintext_http import PlaintextHttp
 from operators.xml.tapjacking_full_occlusion import TapjackingFullOcclusion as TapjackingFullOcclusion_XML
 from resources.resources_handler import ResourcesHandler
 from source.source_handler import SourceHandler
@@ -137,6 +138,8 @@ def instantiateOperators(log, operators):
                 queue.append(TapjackingPartialOcclusion(log))
             case OperatorNames.TAPJACKING_SET_HIDE_OVERLAY_WINDOWS.value:
                 queue.append(TapjackingSetHideOverlayWindows(log))
+            case OperatorNames.PLAINTEXT_HTTP.value:
+                queue.append(PlaintextHttp(log))
             case _:
                 log.error("Invalid operator: %s", operator)
                 exit(1)

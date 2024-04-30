@@ -14,6 +14,7 @@ class OperatorNames(Enum):
     TAPJACKING_FULL_OCCLUSION = "TapjackingFullOcclusion"
     TAPJACKING_PARTIAL_OCCLUSION = "TapjackingPartialOcclusion"
     TAPJACKING_SET_HIDE_OVERLAY_WINDOWS = "TapjackingSetHideOverlayWindows"
+    PLAINTEXT_HTTP = "PlaintextHttp"
 
 class Operator:
     @property
