@@ -41,5 +41,5 @@ class Operator:
         ) else MutationComment.MUTATION_COMMENT_JAVA.value 
 
     @abstractmethod
-    def mutate(self, handler=None, commentMutations=False):
+    def mutate(self, handler=None, commentMutations=False, allMutants=False):
         pass

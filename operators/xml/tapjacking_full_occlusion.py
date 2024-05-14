@@ -11,7 +11,7 @@ class TapjackingFullOcclusion(Operator):
     def __init__(self, log):
         super().__init__(log)
 
-    def mutate(self, resourcesHandler, commentMutations):
+    def mutate(self, resourcesHandler, commentMutations, allMutants):
         mutated = False 
         result = "\n========== Tapjacking Full Occlusion (XML) ==========\n"
 
@@ -48,6 +48,10 @@ class TapjackingFullOcclusion(Operator):
             excerpt = resource[match.start():match.end()]
             mutatedExcerpt = excerpt.replace("true", "false")
             resource = resource.replace(excerpt, mutatedExcerpt)
+
+            # TODO improve, this is due to the current resources handler parsing limitation
+            resource = resource.replace("</application>", "<!--{}--></application>".format(self.getComment()))
+
             resultLine = "\nExcerpt:\n"
             resultLine += excerpt
             resultLine += "\nMutated excerpt:\n"

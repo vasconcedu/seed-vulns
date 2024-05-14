@@ -15,7 +15,7 @@ class HardcodedSecret(Operator):
     def __init__(self, log):
         super().__init__(log)
 
-    def mutate(self, sourceHandler, commentMutations):
+    def mutate(self, sourceHandler, commentMutations, allMutants):
         mutated = False 
         result = "\n========== Hardcoded Secret Operator ==========\n"
 
@@ -33,49 +33,67 @@ class HardcodedSecret(Operator):
 
         if len(candidateSourceFiles) != 0:
             mutated = True 
+            allMutantsIndex = 0
 
-            # Pick a pseudorandom candidate source file
-            self.log.info("Picking a pseudorandom candidate source...")
-            index = randrange(0, len(candidateSourceFiles))
-            resultLine = "Picked source: " + candidateSourceFiles[index]["file"]
-            resultLine += "\n"
-            result += resultLine
+            # If not allMutants, then pick a pseudorandom candidate source
+            # and only keep that one in the list
+            if not allMutants:
+                # Pick a pseudorandom candidate source file
+                self.log.info("Picking a pseudorandom candidate source...")
+                index = randrange(0, len(candidateSourceFiles))
+                resultLine = "Picked source: " + candidateSourceFiles[index]["file"]
+                resultLine += "\n"
+                result += resultLine
+                candidateSourceFiles = [candidateSourceFiles[index]]
 
-            # Generate high entropy string 
-            self.log.info("Generating secret...")
-            secret = os.urandom(256).hex()
-            self.log.info("Generated secret: %s", secret)
+            for candidateSourceFile in candidateSourceFiles:
 
-            self.log.info("Mutating source...")
-            self.log.info("Source is:")
-            source = sourceHandler.readSourceFile(candidateSourceFiles[index]["file"])
-            self.log.info(source)
+                # Generate high entropy string 
+                self.log.info("Generating secret...")
+                secret = os.urandom(256).hex()
+                self.log.info("Generated secret: %s", secret)
 
-            # Inject hardcoded secret into beginning of class definition
-            excerpt = None 
-            mutatedExcerpt = None
+                self.log.info("Mutating source...")
+                self.log.info("Source is:")
+                source = sourceHandler.readSourceFile(candidateSourceFile["file"])
+                self.log.info(source)
 
-            match = re.search(self.classDefinitionPattern, source)
-            excerpt = source[match.start():match.end()]
-            resultLine = "\nExcerpt:\n" + excerpt
+                # Inject hardcoded secret into beginning of class definition
+                excerpt = None 
+                mutatedExcerpt = None
 
-            if sourceHandler.isJavaSourceFile(candidateSourceFiles[index]["file"]):
-                mutatedExcerpt = excerpt + "\n\n    private static final String KEY = \"" + secret + "\"; {}\n\n".format(self.getComment() if commentMutations else "")
-            elif sourceHandler.isKotlinSourceFile(candidateSourceFiles[index]["file"]):
-                mutatedExcerpt = excerpt + "\n\n    private const val KEY = \"" + secret + "\" {}\n\n".format(self.getComment() if commentMutations else "")
-            source = source.replace(excerpt, mutatedExcerpt)
+                match = re.search(self.classDefinitionPattern, source)
+                excerpt = source[match.start():match.end()]
+                resultLine = "\nExcerpt:\n" + excerpt
 
-            resultLine += "\nMutated excerpt:\n" + mutatedExcerpt
-            result += resultLine
-            self.log.info(resultLine)
+                if sourceHandler.isJavaSourceFile(candidateSourceFile["file"]):
+                    mutatedExcerpt = excerpt + "\n\n    private static final String KEY = \"" + secret + "\"; {}\n\n".format(self.getComment() if commentMutations else "")
+                elif sourceHandler.isKotlinSourceFile(candidateSourceFile["file"]):
+                    mutatedExcerpt = excerpt + "\n\n    private const val KEY = \"" + secret + "\" {}\n\n".format(self.getComment() if commentMutations else "")
+                source = source.replace(excerpt, mutatedExcerpt)
 
-            self.log.info("Mutated source is:")
-            self.log.info(source)
+                if allMutants:
+                    resultLine += "\nMutant index is: {}".format(allMutantsIndex)
 
-            # Write mutated source to file
-            self.log.info("Writing mutated source to file...")
-            sourceHandler.writeSourceFile(candidateSourceFiles[index]["file"], source)
-            self.log.info("Successfully wrote source to file")
+                resultLine += "\nMutated excerpt:\n" + mutatedExcerpt
+                result += resultLine
+                self.log.info(resultLine)
+
+                self.log.info("Mutated source is:")
+                self.log.info(source)
+
+                # Write mutated source to file
+                self.log.info("Writing mutated source to file...")
+                if not allMutants:
+                    sourceHandler.writeSourceFile(candidateSourceFile["file"], source)
+                else: 
+                    sourceHandler.writeSourceFile(candidateSourceFile["file"], source, True, "{}".format(allMutantsIndex))
+                    allMutantsIndex += 1
+                self.log.info("Successfully wrote source to file")
+
+        # Remove base directory (no mutations there)
+        if allMutants:
+            sourceHandler.removeDestinationPath()
 
         result += "========== End of Hardcoded Secret Operator ==========\n"
         return result if mutated else None 

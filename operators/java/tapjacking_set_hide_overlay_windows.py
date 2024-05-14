@@ -12,7 +12,7 @@ class TapjackingSetHideOverlayWindows(Operator):
     def __init__(self, log):
         super().__init__(log)
 
-    def mutate(self, sourceHandler, commentMutations):
+    def mutate(self, sourceHandler, commentMutations, allMutants):
         mutated = False 
         result = "\n========== Tapjacking Set Hide Overlay Windows ==========\n"
 

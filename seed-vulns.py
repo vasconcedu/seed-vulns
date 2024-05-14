@@ -31,7 +31,11 @@ def main():
     operators = args.operators.split(',')
     single = args.single
     commentMutations = args.comment_mutations
-    logArguments(log, sourcePath, destinationPath, operators, single, commentMutations)
+    allMutants = args.all_mutants
+    logArguments(log, sourcePath, destinationPath, operators, single, commentMutations, allMutants)
+    if allMutants and single:
+        log.error("Conflicting arguments: cannot output all mutants and a single higher order mutant at the same time. Exiting...")
+        exit(1)
 
     # Copy the source path to the destination path. Mutations
     # shall ovewrite the files in the destination path
@@ -92,7 +96,7 @@ def main():
             if not single:
                 copyDestination(log, sourcePath, path)
                 manifestHandler = ManifestHandler(path)
-            result = operator.mutate(manifestHandler, commentMutations)
+            result = operator.mutate(manifestHandler, commentMutations, allMutants)
             if not single:
                 removeDestination(log, result, path)
             report = appendResult(report, result)
@@ -101,7 +105,7 @@ def main():
                 copyDestination(log, sourcePath, path)
                 sourceHandler = SourceHandler(path)
                 sourceHandler.findSourceFiles()
-            result = operator.mutate(sourceHandler, commentMutations)
+            result = operator.mutate(sourceHandler, commentMutations, allMutants)
             if not single:
                 removeDestination(log, result, path)
             report = appendResult(report, result)
@@ -110,7 +114,7 @@ def main():
                 copyDestination(log, sourcePath, path)
                 resourcesHandler = ResourcesHandler(path)
                 resourcesHandler.findResourceFiles()
-            result = operator.mutate(resourcesHandler, commentMutations)
+            result = operator.mutate(resourcesHandler, commentMutations, allMutants)
             if not single:
                 removeDestination(log, result, path)
             report = appendResult(report, result)
@@ -194,6 +198,7 @@ def parseArguments():
     parser.add_argument('--operators', help='Comma-separeted list of mutation operators to be applied to the app', required=True)
     parser.add_argument('-s', '--single', help='Output one single higher order mutant containing all mutations', action='store_true')
     parser.add_argument('-c', '--comment-mutations', help='Comment all mutations in the source code', action='store_true')
+    parser.add_argument('-a', '--all-mutants', help='Output all mutants', action='store_true')
 
     args = parser.parse_args()
 
@@ -212,13 +217,14 @@ def setupLogging():
 
     return log
 
-def logArguments(log, sourcePath, destinationPath, operators, single, commentMutations):
+def logArguments(log, sourcePath, destinationPath, operators, single, commentMutations, allMutants):
     log.info("seed-vulns has been initiated with the following arguments:")
     log.info("- Source path: %s", sourcePath)
     log.info("- Destination path: %s", destinationPath)
     log.info("- Operators: %s", operators)
     log.info("- Single: %s", "True" if single else "False")
     log.info("- Comment mutations: %s", "True" if commentMutations else "False")
+    log.info("- All mutants: %s", "True" if allMutants else "False")
 
 if __name__ == '__main__':
     main()

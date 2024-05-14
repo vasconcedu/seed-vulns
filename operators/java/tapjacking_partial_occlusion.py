@@ -13,7 +13,7 @@ class TapjackingPartialOcclusion(Operator):
     def __init__(self, log):
         super().__init__(log)
 
-    def mutate(self, sourceHandler, commentMutations):
+    def mutate(self, sourceHandler, commentMutations, allMutants):
         mutated = False 
         result = "\n========== Tapjacking Partial Occlusion Operator ==========\n"
 
@@ -48,14 +48,15 @@ class TapjackingPartialOcclusion(Operator):
             self.log.info(source)
             match = re.search(candidateSourceFiles[index]["pattern"], source)
             excerpt = source[match.start():match.end()]
-            mutatedExcerpt = "{{\n\n        return super.dispatchTouchEvent({}\n\n    }}"
+            mutatedExcerpt = "{{\n\n        return super.dispatchTouchEvent({}{}\n\n    }}"
             insert = None
+            comment = self.getComment() if commentMutations else ""
             if sourceHandler.isJavaSourceFile(candidateSourceFiles[index]["file"]):
                 insert = excerpt.split("(")[1].split("MotionEvent")[1].split(")")[0].strip()
-                mutatedExcerpt = excerpt.replace(excerpt[excerpt.find("{"):], mutatedExcerpt.format(insert + "); {}".format(self.getComment())))
+                mutatedExcerpt = excerpt.replace(excerpt[excerpt.find("{"):], mutatedExcerpt.format(insert, comment))
             elif sourceHandler.isKotlinSourceFile(candidateSourceFiles[index]["file"]):
                 insert = excerpt.split("(")[1].split(":")[0].strip()
-                mutatedExcerpt = excerpt.replace(excerpt[excerpt.find("{"):], mutatedExcerpt.format(insert + ") {}".format(self.getComment())))
+                mutatedExcerpt = excerpt.replace(excerpt[excerpt.find("{"):], mutatedExcerpt.format(insert, comment))
             source = source.replace(excerpt, mutatedExcerpt)
             resultLine = "\nExcerpt:\n"
             resultLine += excerpt
