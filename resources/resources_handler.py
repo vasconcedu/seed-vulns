@@ -1,6 +1,7 @@
 from enum import Enum
 import os
 import re
+from shutil import copytree, rmtree
 
 # For now, only XML resource files are supported.
 class ResourceFileExtension(Enum):
@@ -23,9 +24,27 @@ class ResourcesHandler:
         self.destinationPath = destinationPath
         self.findResourceFiles()
 
-    def writeResourceFile(self, file, content):
+    def removeDestinationPath(self):
+        rmtree(self.destinationPath, ignore_errors=True)
+
+    def writeResourceFile(self, file, content, to_new_copy=False, copy_index=None):
+        # If to_new_copy is True, create a backup of the destination path
+        destinationPathBackup = None
+        if to_new_copy:
+            destinationPathBackup = "{}_backup".format(self.destinationPath)
+            copytree(self.destinationPath, destinationPathBackup)
+        
+        # Write content to manifest file
         with open(file, "w") as f:
             f.write(content)
+
+        # If to_new_copy is True, move the destination path to a new directory
+        # named after the copy index, restore the backup to the original destination
+        if to_new_copy:
+            newDestinationPath = "{}_{}".format(self.destinationPath, copy_index)
+            rmtree(newDestinationPath, ignore_errors=True)
+            os.rename(self.destinationPath, newDestinationPath)
+            os.rename(destinationPathBackup, self.destinationPath)
 
     def readResourceFile(self, file):
         with open(file, "r") as f:

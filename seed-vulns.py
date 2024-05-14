@@ -104,7 +104,6 @@ def main():
             if not single: 
                 copyDestination(log, sourcePath, path)
                 sourceHandler = SourceHandler(path)
-                sourceHandler.findSourceFiles()
             result = operator.mutate(sourceHandler, commentMutations, allMutants)
             if not single:
                 removeDestination(log, result, path)
@@ -113,7 +112,6 @@ def main():
             if not single: 
                 copyDestination(log, sourcePath, path)
                 resourcesHandler = ResourcesHandler(path)
-                resourcesHandler.findResourceFiles()
             result = operator.mutate(resourcesHandler, commentMutations, allMutants)
             if not single:
                 removeDestination(log, result, path)

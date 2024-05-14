@@ -1,5 +1,6 @@
 from enum import Enum
 import os
+from shutil import copytree, rmtree
 from lxml import etree as ET
 
 class ExportedConfig(Enum):
@@ -19,9 +20,29 @@ class ManifestHandler:
         self.findManifest()
         self.parseManifest()
 
-    def writeManifest(self):
+    def removeDestinationPath(self):
+        rmtree(self.destinationPath, ignore_errors=True)
+
+    def writeManifest(self, to_new_copy=False, copy_index=None):
+        # If to_new_copy is True, create a backup of the destination path
+        destinationPathBackup = None
+        if to_new_copy: 
+            destinationPathBackup = "{}_backup".format(self.destinationPath)
+            copytree(self.destinationPath, destinationPathBackup)
+            
+        # Write content to manifest file
         with open(self.manifestPath, "w") as f:
             f.write(self.getManifestString())
+
+        # If to_new_copy is True, move the destination path to a new directory
+        # named after the copy index, restore the backup to the original destination
+        if to_new_copy:
+            newDestinationPath = "{}_{}".format(self.destinationPath, copy_index)
+            rmtree(newDestinationPath, ignore_errors=True)
+            os.rename(self.destinationPath, newDestinationPath)
+            os.rename(destinationPathBackup, self.destinationPath)
+            # Need to parse manifest again here 
+            self.parseManifest()
 
     def findManifest(self):
         for root, _, files in os.walk(self.destinationPath):

@@ -92,7 +92,7 @@ class HardcodedSecret(Operator):
                 self.log.info("Successfully wrote source to file")
 
         # Remove base directory (no mutations there)
-        if allMutants:
+        if allMutants and mutated:
             sourceHandler.removeDestinationPath()
 
         result += "========== End of Hardcoded Secret Operator ==========\n"

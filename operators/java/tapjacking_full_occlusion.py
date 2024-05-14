@@ -32,41 +32,55 @@ class TapjackingFullOcclusion(Operator):
 
         if len(candidateSourceFiles) != 0:
             mutated = True 
+            allMutantsIndex = 0
 
-            # Pick a pseudorandom candidate source file
-            self.log.info("Picking a pseudorandom candidate source...")
-            index = randrange(0, len(candidateSourceFiles))
-            resultLine = "Picked source: " + candidateSourceFiles[index]["file"]
-            resultLine += "\n- filterTouchesWhenObscured pattern: " + candidateSourceFiles[index]["pattern"]
-            resultLine += "\n"
-            result += resultLine
-            self.log.info(resultLine)
+            if not allMutants:
+                # Pick a pseudorandom candidate source file
+                self.log.info("Picking a pseudorandom candidate source...")
+                index = randrange(0, len(candidateSourceFiles))
+                resultLine = "Picked source: " + candidateSourceFiles[index]["file"]
+                resultLine += "\n- filterTouchesWhenObscured pattern: " + candidateSourceFiles[index]["pattern"]
+                resultLine += "\n"
+                result += resultLine
+                self.log.info(resultLine)
+                candidateSourceFiles = [candidateSourceFiles[index]]
 
-            # Mutate source file
-            # The operation is the same both for Java and Kotlin 
-            # (change true to false)
-            self.log.info("Mutating source...")
-            self.log.info("Source is:")
-            source = sourceHandler.readSourceFile(candidateSourceFiles[index]["file"])
-            self.log.info(source)
-            match = re.search(candidateSourceFiles[index]["pattern"], source)
-            excerpt = source[match.start():match.end()]
-            mutatedExcerpt = excerpt.replace("true", "false {}".format(self.getComment() if commentMutations else ""))
-            source = source.replace(excerpt, mutatedExcerpt)
-            resultLine = "\nExcerpt:\n"
-            resultLine += excerpt
-            resultLine += "\nMutated excerpt:\n"
-            resultLine += mutatedExcerpt
-            result += resultLine + "\n"
-            self.log.info(resultLine)
+            for candidate in candidateSourceFiles:
+                # Mutate source file
+                # The operation is the same both for Java and Kotlin 
+                # (change true to false)
+                self.log.info("Mutating source...")
+                self.log.info("Source is:")
+                source = sourceHandler.readSourceFile(candidate["file"])
+                self.log.info(source)
+                match = re.search(candidate["pattern"], source)
+                excerpt = source[match.start():match.end()]
+                mutatedExcerpt = excerpt.replace("true", "false {}".format(self.getComment() if commentMutations else ""))
+                source = source.replace(excerpt, mutatedExcerpt)
+                resultLine = "\nExcerpt:\n"
+                resultLine += excerpt
+                if allMutants:
+                    resultLine += "\nMutant index is: {}".format(allMutantsIndex)
+                resultLine += "\nMutated excerpt:\n"
+                resultLine += mutatedExcerpt
+                result += resultLine + "\n"
+                self.log.info(resultLine)
 
-            self.log.info("Mutated source is:")
-            self.log.info(source)
+                self.log.info("Mutated source is:")
+                self.log.info(source)
 
-            # Write mutated source to file
-            self.log.info("Writing mutated source to file...")
-            sourceHandler.writeSourceFile(candidateSourceFiles[index]["file"], source)
-            self.log.info("Successfully wrote source to file")
+                # Write mutated source to file
+                self.log.info("Writing mutated source to file...")
+                if not allMutants:
+                    sourceHandler.writeSourceFile(candidate["file"], source)
+                else: 
+                    sourceHandler.writeSourceFile(candidate["file"], source, True, "{}".format(allMutantsIndex))
+                    allMutantsIndex += 1
+                self.log.info("Successfully wrote source to file")
+
+        # Remove base directory (no mutations there)
+        if allMutants and mutated:
+            sourceHandler.removeDestinationPath()
 
         result += "========== End of Tapjacking Full Occlusion (Java) ==========\n"
         return result if mutated else None

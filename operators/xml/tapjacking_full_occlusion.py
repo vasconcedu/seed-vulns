@@ -29,43 +29,56 @@ class TapjackingFullOcclusion(Operator):
 
         if len(candidateResourceFiles) != 0:
             mutated = True 
+            allMutantsIndex = 0
 
-            # Pick a pseudorandom candidate resource file
-            self.log.info("Picking a pseudorandom candidate resource...")
-            index = randrange(0, len(candidateResourceFiles))
-            resultLine = "Picked resource: " + candidateResourceFiles[index]["file"]
-            resultLine += "\n- filterTouchesWhenObscured pattern: " + candidateResourceFiles[index]["pattern"]
-            resultLine += "\n"
-            result += resultLine
-            self.log.info(resultLine)
+            if not allMutants:
+                # Pick a pseudorandom candidate resource file
+                self.log.info("Picking a pseudorandom candidate resource...")
+                index = randrange(0, len(candidateResourceFiles))
+                resultLine = "Picked resource: " + candidateResourceFiles[index]["file"]
+                resultLine += "\n- filterTouchesWhenObscured pattern: " + candidateResourceFiles[index]["pattern"]
+                resultLine += "\n"
+                result += resultLine
+                self.log.info(resultLine)
+                candidateResourceFiles = [candidateResourceFiles[index]]
 
-            # Mutate source file
-            self.log.info("Mutating resource...")
-            self.log.info("Resource is:")
-            resource = resourcesHandler.readResourceFile(candidateResourceFiles[index]["file"])
-            self.log.info(resource)
-            match = re.search(candidateResourceFiles[index]["pattern"], resource)
-            excerpt = resource[match.start():match.end()]
-            mutatedExcerpt = excerpt.replace("true", "false")
-            resource = resource.replace(excerpt, mutatedExcerpt)
+            for candidate in candidateResourceFiles:
+                # Mutate source file
+                self.log.info("Mutating resource...")
+                self.log.info("Resource is:")
+                resource = resourcesHandler.readResourceFile(candidate["file"])
+                self.log.info(resource)
+                match = re.search(candidate["pattern"], resource)
+                excerpt = resource[match.start():match.end()]
+                mutatedExcerpt = excerpt.replace("true", "false")
+                resource = resource.replace(excerpt, mutatedExcerpt)
 
-            # TODO improve, this is due to the current resources handler parsing limitation
-            resource = resource.replace("</application>", "<!--{}--></application>".format(self.getComment()))
+                # TODO improve, this is due to the current resources handler parsing limitation
+                resource = resource.replace("</application>", "<!--{}--></application>".format(self.getComment()))
 
-            resultLine = "\nExcerpt:\n"
-            resultLine += excerpt
-            resultLine += "\nMutated excerpt:\n"
-            resultLine += mutatedExcerpt
-            result += resultLine + "\n"
-            self.log.info(resultLine)
+                resultLine = "\nExcerpt:\n"
+                resultLine += excerpt
+                if allMutants:
+                    resultLine += "\nMutant index is: {}".format(allMutantsIndex)
+                resultLine += "\nMutated excerpt:\n"
+                resultLine += mutatedExcerpt
+                result += resultLine + "\n"
+                self.log.info(resultLine)
 
-            self.log.info("Mutated resource is:")
-            self.log.info(resource)
+                self.log.info("Mutated resource is:")
+                self.log.info(resource)
 
-            # Write mutated resource to file
-            self.log.info("Writing mutated resource to file...")
-            resourcesHandler.writeResourceFile(candidateResourceFiles[index]["file"], resource)
-            self.log.info("Successfully wrote resource to file")
+                # Write mutated resource to file
+                self.log.info("Writing mutated resource to file...")
+                if not allMutants:
+                    resourcesHandler.writeResourceFile(candidate["file"], resource)
+                else: 
+                    resourcesHandler.writeResourceFile(candidate["file"], resource, True, "{}".format(allMutantsIndex))
+                    allMutantsIndex += 1
+                self.log.info("Successfully wrote resource to file")
+
+        if allMutants and mutated:
+            resourcesHandler.removeDestinationPath()
 
         result += "========== End of Tapjacking Full Occlusion (XML) ==========\n"
         return result if mutated else None
