@@ -69,7 +69,7 @@ class HardcodedSecret(Operator):
                 if sourceHandler.isJavaSourceFile(candidateSourceFile["file"]):
                     mutatedExcerpt = excerpt + "\n\n    private static final String KEY = \"" + secret + "\"; {}\n\n".format(self.getComment() if commentMutations else "")
                 elif sourceHandler.isKotlinSourceFile(candidateSourceFile["file"]):
-                    mutatedExcerpt = excerpt + "\n\n    private const val KEY = \"" + secret + "\" {}\n\n".format(self.getComment() if commentMutations else "")
+                    mutatedExcerpt = excerpt + "\n\n    private val KEY = \"" + secret + "\" {}\n\n".format(self.getComment() if commentMutations else "")
                 source = source.replace(excerpt, mutatedExcerpt)
 
                 if allMutants:
