@@ -10,8 +10,8 @@ class ImplicitPendingIntent(Operator):
 
     # This pattern works interchangeably with Java and Kotlin, hence
     # there is no need to distinguish between the two file extensions
-    explicitPendingIntentPatterns = [ 
-        r"PendingIntent(\s+)?\.(\s+)?get{}(\s+)?\((?s).*?PendingIntent(\s+)?\.(\s+)?FLAG_IMMUTABLE(?s).*?\)"
+    implicitPendingIntentPatterns = [ 
+        r"(?s)PendingIntent(\s+)?\.(\s+)?get{}(\s+)?\(.*?PendingIntent(\s+)?\.(\s+)?FLAG_IMMUTABLE.*?\)"
             .format(pattern) 
         for pattern in [
             "Activities",
@@ -36,7 +36,7 @@ class ImplicitPendingIntent(Operator):
             self.log.info("Source: %s", sourceFile)
 
         # Look for explicit pending intents in source files
-        candidateSourceFiles = sourceHandler.matchSourceFiles(self.explicitPendingIntentPatterns) 
+        candidateSourceFiles = sourceHandler.matchSourceFiles(self.implicitPendingIntentPatterns) 
         self.log.info("Found %d candidate sources:", len(candidateSourceFiles))
         for sourceFile in candidateSourceFiles:
             self.log.info("Candidate source: %s. Pattern: %s", sourceFile["file"], sourceFile["pattern"])

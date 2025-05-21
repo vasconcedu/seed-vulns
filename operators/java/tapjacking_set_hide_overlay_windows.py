@@ -7,7 +7,7 @@ class TapjackingSetHideOverlayWindows(Operator):
     type = OperatorTypes.JAVA
 
     # Same pattern for Java and Kotlin
-    setHideOverlayWindows = r"\.(?s)\s*?setHideOverlayWindows(?s)\s*?\((?s)\s*?true(?s)\s*?\)"
+    setHideOverlayWindows = r"(?s)\.\s*?setHideOverlayWindows\s*?\(\s*?true\s*?\)"
 
     def __init__(self, log):
         super().__init__(log)

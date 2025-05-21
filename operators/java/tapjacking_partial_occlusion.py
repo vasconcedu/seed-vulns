@@ -7,8 +7,8 @@ class TapjackingPartialOcclusion(Operator):
     type = OperatorTypes.JAVA
 
     # Different patterns for Java and Kotlin
-    dispatchTouchEventPatternJava = r"public\s+?boolean\s+?dispatchTouchEvent\s*?\(\s*?MotionEvent(?s).*?\)\s*?{(?s).*?}"
-    dispatchTouchEventPatternKotlin = r"override\s+?fun\s+?dispatchTouchEvent\s*?\((?s).*?:\s*?MotionEvent(?s).*?\)\s*?:\s*?Boolean\s*?{(?s).*?}"
+    dispatchTouchEventPatternJava = r"(?s)public\s+?boolean\s+?dispatchTouchEvent\s*?\(\s*?MotionEvent.*?\)\s*?{.*?}"
+    dispatchTouchEventPatternKotlin = r"(?s)override\s+?fun\s+?dispatchTouchEvent\s*?\(.*?:\s*?MotionEvent.*?\)\s*?:\s*?Boolean\s*?{.*?}"
 
     def __init__(self, log):
         super().__init__(log)
