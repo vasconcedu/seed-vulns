@@ -10,7 +10,7 @@ class HardcodedSecret(Operator):
     # This pattern works interchangeably with Java and Kotlin, hence
     # there is no need to distinguish between the two file extensions.
     # Operand changes vary between languages, though. 
-    classDefinitionPattern = r"class\s+[A-Za-z0-9_]+(?s).*?\{"
+    classDefinitionPattern = r"(?s)class\s+[A-Za-z0-9_]+.*?\{"
 
     def __init__(self, log):
         super().__init__(log)

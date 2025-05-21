@@ -11,7 +11,7 @@ class ImplicitPendingIntent(Operator):
     # This pattern works interchangeably with Java and Kotlin, hence
     # there is no need to distinguish between the two file extensions
     explicitPendingIntentPatterns = [ 
-        r"PendingIntent(\s+)?\.(\s+)?get{}(\s+)?\((?s).*?PendingIntent(\s+)?\.(\s+)?FLAG_IMMUTABLE(?s).*?\)"
+        r"(?s)PendingIntent(\s+)?\.(\s+)?get{}(\s+)?\(.*?PendingIntent(\s+)?\.(\s+)?FLAG_IMMUTABLE.*?\)"
             .format(pattern) 
         for pattern in [
             "Activities",
